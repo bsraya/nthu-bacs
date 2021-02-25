@@ -1,0 +1,42 @@
+---
+title: "BACS Homework 1"
+author: "109062710"
+date: "February 25, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+
+# 1. Importing Dataset
+```{r customers}
+customers <- read.table("./customers.txt",header=TRUE)
+```
+
+
+```{r}
+summary(customers)
+```
+
+# 2. Questions
+
+1. The fifth element in the dataset
+```{r}
+customers$age[5]
+```
+We can see the the fifth entry in the dataset if `45`. However, if we weren't sure about it, we could print out the first twenty entries of the dataset.
+
+```{r}
+customers$age[c(1:20)]
+```
+As we can see here, the fifth entry is definitely `45`.
+
+# 3. Data Visualization
+```{r ageplot, echo=FALSE}
+ggplot(customers, aes(x=age)) + 
+  geom_histogram(binwidth=10)
+```
+
