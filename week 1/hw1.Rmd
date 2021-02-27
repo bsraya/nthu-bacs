@@ -11,32 +11,126 @@ library(ggplot2)
 ```
 
 
-# 1. Importing Dataset
+# I. Importing Dataset
 ```{r customers}
 customers <- read.table("./customers.txt",header=TRUE)
 ```
 
-
+After importing, we would like to see the detailed information of our data set.
 ```{r}
 summary(customers)
 ```
 
-# 2. Questions
+# II. Questions
 
-1. The fifth element in the dataset
-```{r}
-customers$age[5]
-```
-We can see the the fifth entry in the dataset if `45`. However, if we weren't sure about it, we could print out the first twenty entries of the dataset.
-
+## 1. The fifth element in the dataset
 ```{r}
 customers$age[c(1:20)]
 ```
-As we can see here, the fifth entry is definitely `45`.
+First, we should print out the first 20 numbers in the data set to see what numbers there are. As we can see, we know the fifth entry in the data set is `45`.
 
-# 3. Data Visualization
-```{r ageplot, echo=FALSE}
-ggplot(customers, aes(x=age)) + 
-  geom_histogram(binwidth=10)
+The code below is how we acquire the fifth entry of the data.
+```{r}
+customers$age[5]
+```
+Below is the explanation how the code above works:
+
+First, we call our data set called `customer`. Then, we use `$` to access a user specified column. Since there is only one column, `$age` it is. 
+
+What `customers$age[5]` tells us is we want the fifth entry `[5]` in `age` column in a data set called `customers`
+
+
+## 2. What is the fifth lowest age?
+First, we have to order the `age` column in an ascending manner. Then we print out the first ten entries of the ascending ordered data set.
+
+```{r}
+age_ascending <- customers[order(customers$age),]
+age_ascending[c(0:10)]
+```
+As it's can be seen here, the fifth lowest age is `19`. 
+In order to extract the fifth lowest age in the ascending ordered data set, we can do it like below
+```{r}
+age_ascending[c(5)]
 ```
 
+
+## 3. Extract the five lowest ages together.
+There are two ways to do it
+
+First, the hard-coded one
+```{r}
+age_ascending[c(1,2,3,4,5)]
+```
+
+Second, it's much simpler than the previous one
+```{r}
+age_ascending[c(1:5)]
+```
+
+## 4. Get the five highest ages by first sorting them in decreasing order first.
+```{r}
+customers[order(customers$age, decreasing=TRUE),][c(1:5)]
+```
+
+## 5. What is the average (mean) age?
+```{r}
+colMeans(customers)
+```
+
+## 6. What is the standard deviation of ages? (guess or google the standard deviation function in R)
+
+Slower way,
+```{r}
+mean <- colMeans(customers)
+sum <- sum((customers$age - mean)^2)
+std <- sqrt(sum / length(customers$age))
+std
+```
+
+```{r}
+sd(customers$age)
+```
+
+As we can see here, the standard deviation value from both ways differ by `0.02` points which is considered to be really small.
+
+## 7. Make a new variable called age_diff, with the difference between each age and the mean age.
+```{r}
+age_diff <- abs(customers$age - colMeans(customers))
+age_diff[c(1:10)]
+```
+
+## 8. What is the average “difference between each age and the mean age”?
+```{r}
+avg_age_diff <- mean(age_diff)
+avg_age_diff
+```
+
+## 9. Visualize the raw data as we did in class: (a) Histogram, (b) Density Plot, (c) Box Plot (d) Strip Chart
+
+### (a) Histogram
+```{r histoplot, echo=FALSE}
+ggplot(customers, aes(x=age)) + geom_histogram(binwidth=10, fill="#69b3a2", color="#e9ecef", alpha=0.9) + ggtitle("Customers Age in Histogram")
+```
+From the table above, most customers are in their fifties.
+
+On Google, one generation is around 20 to 30 years. Let's take a number in between and set the `binwidth=25`.
+```{r histoplot, echo=FALSE}
+ggplot(customers, aes(x=age)) + geom_histogram(binwidth=25, fill="#69b3a2", color="#e9ecef", alpha=0.9) + ggtitle("Customers per Generation")
+```
+As we can see here, most customers are around `26` to `50`.
+
+### (b) Density Plot
+```{r densplot, echo=FALSE}
+ggplot(customers, aes(x=age)) + geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8) + ggtitle("Customers Age in Density Plot")
+```
+
+### (c) Box Plot
+```{r boxplot, echo=FALSE}
+ggplot(customers, aes(x=age, y=count)) + geom_boxplot() + geom_jitter(color="black", size=0.4, alpha=0.9) + ggtitle("Customers Age in Boxplot")
+```
+
+### (d) Strip Chart
+```{r stripchart, echo=FALSE}
+ggplot(customers, aes(x=age)) + 
+  geom_jitter(position=position_jitter(0.2))
+```
