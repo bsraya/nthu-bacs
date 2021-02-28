@@ -1,19 +1,22 @@
 ---
 title: "BACS Homework 1"
-author: "109062710"
+author: '109062710'
 date: "February 25, 2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(tinytex.verbose=TRUE)
 library(ggplot2)
 ```
 
 
 # I. Importing Dataset
 ```{r customers}
-customers <- read.table("./customers.txt",header=TRUE)
+customers <- read.table("./customers.txt", header=TRUE)
 ```
 
 After importing, we would like to see the detailed information of our data set.
@@ -43,6 +46,7 @@ What `customers$age[5]` tells us is we want the fifth entry `[5]` in `age` colum
 ## 2. What is the fifth lowest age?
 First, we have to order the `age` column in an ascending manner. Then we print out the first ten entries of the ascending ordered data set.
 
+  labs(title = "Age of customers", y = "Age")
 ```{r}
 age_ascending <- customers[order(customers$age),]
 age_ascending[c(0:10)]
@@ -95,7 +99,8 @@ As we can see here, the standard deviation value from both ways differ by `0.02`
 
 ## 7. Make a new variable called age_diff, with the difference between each age and the mean age.
 ```{r}
-age_diff <- abs(customers$age - colMeans(customers))
+mean <- colMeans(customers)
+age_diff <- abs(customers$age - mean)
 age_diff[c(1:10)]
 ```
 
@@ -108,29 +113,61 @@ avg_age_diff
 ## 9. Visualize the raw data as we did in class: (a) Histogram, (b) Density Plot, (c) Box Plot (d) Strip Chart
 
 ### (a) Histogram
-```{r histoplot, echo=FALSE}
-ggplot(customers, aes(x=age)) + geom_histogram(binwidth=10, fill="#69b3a2", color="#e9ecef", alpha=0.9) + ggtitle("Customers Age in Histogram")
+```{r histoplot}
+ggplot(customers, aes(x=age)) + 
+  geom_histogram(
+    binwidth=10, 
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) + 
+  ggtitle("Customers Age in Histogram") + 
+  labs(x="Age", y="People")
 ```
+
 From the table above, most customers are in their fifties.
 
 On Google, one generation is around 20 to 30 years. Let's take a number in between and set the `binwidth=25`.
-```{r histoplot, echo=FALSE}
-ggplot(customers, aes(x=age)) + geom_histogram(binwidth=25, fill="#69b3a2", color="#e9ecef", alpha=0.9) + ggtitle("Customers per Generation")
+
+```{r histoplot_per_generation}
+ggplot(customers, aes(x=age)) + 
+  geom_histogram(
+    binwidth=25, 
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) + 
+  ggtitle("Customers per Generation") + 
+  labs(x = "Age", y = "People")
 ```
+
 As we can see here, most customers are around `26` to `50`.
 
 ### (b) Density Plot
-```{r densplot, echo=FALSE}
-ggplot(customers, aes(x=age)) + geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8) + ggtitle("Customers Age in Density Plot")
+```{r densplot}
+ggplot(customers, aes(x=age)) + 
+  geom_density(
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) + 
+  ggtitle("Customers Age in Density Plot")
 ```
 
 ### (c) Box Plot
-```{r boxplot, echo=FALSE}
-ggplot(customers, aes(x=age, y=count)) + geom_boxplot() + geom_jitter(color="black", size=0.4, alpha=0.9) + ggtitle("Customers Age in Boxplot")
+```{r boxplot}
+customers_age = customers$age
+ggplot() + 
+  geom_boxplot(
+    aes(y=customers_age), 
+    outlier.color = "red", 
+    outlier.shape=2, 
+    outlier.size = 5
+  ) + 
+  ylim(c(0, 100)) +
+  labs(y = "Age of Customers")
 ```
 
+We can see that there are few outliers in red triangles.
+
 ### (d) Strip Chart
-```{r stripchart, echo=FALSE}
-ggplot(customers, aes(x=age)) + 
-  geom_jitter(position=position_jitter(0.2))
+```{r stripchart}
+stripchart(x = customers$age, method="stack")
 ```
