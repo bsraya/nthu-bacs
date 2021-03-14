@@ -1,0 +1,127 @@
+---
+title: "BACS HW2"
+author: "Bijon Setyawan Raya 109062710"
+date: "3/14/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(cowplot)
+```
+
+# Question 1
+
+## (a) A graph with negatively skewed tail
+```{r}
+d1 <- rnorm(n=500, mean=45, sd=1)
+d2 <- rnorm(n=200, mean=30, sd=2)
+d3 <- rnorm(n=100, mean=15, sd=3)
+
+dataset <- c(d1, d2, d3)
+plot(density(dataset), col="blue", lwd=2, main="Distribution 2")
+
+abline(v=mean(dataset))
+abline(v=median(dataset), lty="dashed")
+```
+
+## (b) A graph with bell shaped curve
+```{r}
+dataset <- c(rnorm(n=800, mean=25,sd=5))
+
+plot(density(dataset), col="blue", main="Distribution 3")
+
+abline(v=mean(dataset))
+abline(v=median(dataset), lty="dashed")
+```
+
+## (c) Which of the central measurements is more likely to be affeccted by outliers in the data? Is it Mean or Median?
+Mean will more likely to be affected by outliers in the data.
+Mean will increase because of the existence of higher outliers. Conversely, Mean will decrease because of the existence of lower outliers.
+
+# Question 2
+## (a)
+```{r}
+rdata <- rnorm(n=2000, mean=0, sd=1)
+
+dataset <- c(rdata)
+
+plot(density(rdata), col="blue", main="Random Data")
+
+abline(v=mean(dataset))
+abline(v=median(dataset), col="red", lty="dashed")
+
+# negative STDs
+abline(v=sd(dataset) * -1, col="red", lty="dashed")
+abline(v=sd(dataset) * -2, col="red", lty="dashed")
+abline(v=sd(dataset) * -3, col="red", lty="dashed")
+
+# positive STDs
+abline(v=sd(dataset), col="red", lty="dashed")
+abline(v=sd(dataset) * 2, col="red", lty="dashed")
+abline(v=sd(dataset) * 3, col="red", lty="dashed")
+```
+
+## (b)
+```{r}
+rdata <- rnorm(n=2000, mean=0, sd=1)
+
+dataset <- c(rdata)
+
+plot(density(rdata), col="blue", main="Random Data")
+
+abline(v=mean(dataset))
+abline(v=median(dataset), col="red", lty="dashed")
+
+two_b_quantiles = quantile(dataset)
+
+abline(v=two_b_quantiles[2])
+abline(v=two_b_quantiles[3])
+abline(v=two_b_quantiles[4])
+
+# negative STDs
+abline(v=sd(dataset) * -1, col="red", lty="dashed")
+abline(v=sd(dataset) * -2, col="red", lty="dashed")
+abline(v=sd(dataset) * -3, col="red", lty="dashed")
+
+# positive STDs
+abline(v=sd(dataset), col="red", lty="dashed")
+abline(v=sd(dataset) * 2, col="red", lty="dashed")
+abline(v=sd(dataset) * 3, col="red", lty="dashed")
+```
+```{r}
+rdata <- rnorm(n=2000, mean=0, sd=1)
+
+dataset <- c(rdata)
+
+q1 <- quantile(rdata, 0.25)
+q1
+```
+
+As we can see in the graph above, we can see that:
+* 1st quartile is `-0.6461` STD away from the mean
+* 2nd quartile is `-0.0003` STD away from the mean
+* 3nd quartile is `0.6694` STD away fromt the mean
+
+# Question 3
+```{r}
+random_dataset <- rnorm(n=2000, mean=35, sd=3.5)
+
+two_c_dataset <- c(random_dataset)
+
+plot(density(two_c_dataset), col="blue", main="2C Graph")
+
+# negative STDs
+abline(v=sd(random_dataset) * -1, col="red", lty="dashed")
+abline(v=sd(random_dataset) * -2, col="red", lty="dashed")
+abline(v=sd(random_dataset) * -3, col="red", lty="dashed")
+
+# positive STDs
+abline(v=sd(random_dataset), col="red", lty="dashed")
+abline(v=sd(random_dataset) * 2, col="red", lty="dashed")
+abline(v=sd(random_dataset) * 3, col="red", lty="dashed")
+```
+
+```{r}
+sd(two_c_dataset)
+```
