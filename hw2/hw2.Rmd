@@ -1,14 +1,9 @@
 ---
 title: "BACS HW2"
-author: "Bijon Setyawan Raya 109062710"
-date: "3/14/2021"
+author: "109062710"
+date: "March 14, 2021"
 output: pdf_document
 ---
-
-```{r setup, include=FALSE}
-library(ggplot2)
-library(cowplot)
-```
 
 # Question 1
 
@@ -40,88 +35,252 @@ Mean will more likely to be affected by outliers in the data.
 Mean will increase because of the existence of higher outliers. Conversely, Mean will decrease because of the existence of lower outliers.
 
 # Question 2
-## (a)
+
+Below is the helper functions that are used in Q2
 ```{r}
-rdata <- rnorm(n=2000, mean=0, sd=1)
+mean_std_lines <- function (dataset) {
+  abline(v=mean(dataset))
+  
+  # negative Standard Deviation lines
+  abline(v=sd(dataset) * -1, col="red", lty="dashed") 
+  abline(v=sd(dataset) * -2, col="red", lty="dashed")
+  abline(v=sd(dataset) * -3, col="red", lty="dashed")
 
-dataset <- c(rdata)
+  # positive Standard Deviation lines
+  abline(v=sd(dataset), col="red", lty="dashed")
+  abline(v=sd(dataset) * 2, col="red", lty="dashed")
+  abline(v=sd(dataset) * 3, col="red", lty="dashed")  
+}
 
-plot(density(rdata), col="blue", main="Random Data")
+quartiles_lines <- function (dataset) {
+  abline(v=quantile(dataset, 0.25), col="green", lty="dashed")
+  abline(v=quantile(dataset, 0.50), col="green", lty="dashed")
+  abline(v=quantile(dataset, 0.75), col="green", lty="dashed")
+}
 
-abline(v=mean(dataset))
-abline(v=median(dataset), col="red", lty="dashed")
+quartile_distance <- function(dataset, nth) {
+  return(quantile(dataset, nth) - mean(dataset) / sd(dataset))
+}
 
-# negative STDs
-abline(v=sd(dataset) * -1, col="red", lty="dashed")
-abline(v=sd(dataset) * -2, col="red", lty="dashed")
-abline(v=sd(dataset) * -3, col="red", lty="dashed")
-
-# positive STDs
-abline(v=sd(dataset), col="red", lty="dashed")
-abline(v=sd(dataset) * 2, col="red", lty="dashed")
-abline(v=sd(dataset) * 3, col="red", lty="dashed")
+quartiles_distance <- function(dataset) {
+  first_quantile_distance = quartile_distance(dataset, 0.25)
+  second_quantile_distance = quartile_distance(dataset, 0.50)
+  third_quantile_distance = quartile_distance(dataset, 0.75)
+  
+  print(paste("The distance of 1st quartile is", first_quantile_distance, "STD from the mean"))
+  print(paste("The distance of 2nd quartile is", second_quantile_distance, "STD from the mean"))
+  print(paste("The distance of 3rd quartile is", third_quantile_distance, "STD from the mean"))
+}
 ```
 
-## (b)
+## (a) `n = 2000, mean = 0, sd = 1` with Mean Line and STD lines
 ```{r}
-rdata <- rnorm(n=2000, mean=0, sd=1)
+first_dataset <- c(rnorm(n=2000, mean=0, sd=1))
 
-dataset <- c(rdata)
+plot(density(first_dataset), col="blue", main="2A Graph")
 
-plot(density(rdata), col="blue", main="Random Data")
-
-abline(v=mean(dataset))
-abline(v=median(dataset), col="red", lty="dashed")
-
-two_b_quantiles = quantile(dataset)
-
-abline(v=two_b_quantiles[2])
-abline(v=two_b_quantiles[3])
-abline(v=two_b_quantiles[4])
-
-# negative STDs
-abline(v=sd(dataset) * -1, col="red", lty="dashed")
-abline(v=sd(dataset) * -2, col="red", lty="dashed")
-abline(v=sd(dataset) * -3, col="red", lty="dashed")
-
-# positive STDs
-abline(v=sd(dataset), col="red", lty="dashed")
-abline(v=sd(dataset) * 2, col="red", lty="dashed")
-abline(v=sd(dataset) * 3, col="red", lty="dashed")
-```
-```{r}
-rdata <- rnorm(n=2000, mean=0, sd=1)
-
-dataset <- c(rdata)
-
-q1 <- quantile(rdata, 0.25)
-q1
+mean_std_lines(first_dataset)
 ```
 
-As we can see in the graph above, we can see that:
-* 1st quartile is `-0.6461` STD away from the mean
-* 2nd quartile is `-0.0003` STD away from the mean
-* 3nd quartile is `0.6694` STD away fromt the mean
+## (b) `n = 2000, mean = 0, sd = 1` with Mean Line, STD lines, and Quartile Lines
+```{r}
+second_dataset <- c(rnorm(n=2000, mean=0, sd=1))
+
+plot(density(second_dataset), col="blue", main="2B Graph")
+
+mean_std_lines(second_dataset)
+quartiles_lines(second_dataset)
+```
+
+```{r}
+quartiles_distance(second_dataset)
+```
+
+## (c) `n = 200, mean = 35, sd = 3.5` with Mean Line, STD lines, and Quartile Lines
+```{r}
+third_dataset <- c(rnorm(n=2000, mean=35, sd=3.5))
+
+plot(density(third_dataset), col="blue", main="2C Graph", xlim=c(-12,55))
+
+mean_std_lines(third_dataset)
+quartiles_lines(third_dataset)
+```
+In the graph above, we can see that the 1st and the 3rd quartile is much further at the right hand side of the mean. 
+```{r}
+quartiles_distance(third_dataset)
+```
+
+## (d)
+
+```{r}
+plot(density(first_dataset), col="blue", main="2A Graph")
+mean_std_lines(first_dataset)
+quartiles_lines(first_dataset)
+```
+```{r}
+quartiles_distance(first_dataset)
+```
 
 # Question 3
+
+## (a) Calculate Bin Width/Number & Its Benefit
+In his comment, the number of bins should be
+$$
+k = (max - min)/h
+$$
+where,
+
+1. $k$ is the number of bins
+
+2. $max$ is the maximum value in the observation group
+
+3. $min$ is the minimum value in the observation group
+
+4. $h$ is the size of each bin
+
+In this case $h$ is 
+$$
+h = 2 \times InterQuartileRange \times n^{-1/3}
+$$
+
+The benefit of Friedman-Diaconis' rule is 
+
+1. To minimize the difference between the area under the empirical probability distribution and the area under the theoretical probability distribution 
+
+2. The existence of outliers won't affect the bin width at ll with Friedman-Diaconis' Rule
+
+## (b)
+
+```{r, echo=FALSE}
+library(ggplot2)
+```
+
+### 1. Sturges' Formula
 ```{r}
-random_dataset <- rnorm(n=2000, mean=35, sd=3.5)
+rand_data <- rnorm(800, mean=20, sd=5)
+n <- length(rand_data)
+sturges_bin_number = ceiling(log2(n)) + 1
+sturges_bin_width = (max(rand_data) - min(rand_data)) / sturges_bin_number
 
-two_c_dataset <- c(random_dataset)
+ggplot(mapping = aes(rand_data)) +
+  geom_histogram(
+    bins=sturges_bin_number, 
+    binwidth=sturges_bin_width,
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) +
+  ggtitle("Histogram with Sturges' Rule")
+```
+```{r}
+sturges_bin_number
+sturges_bin_width
+```
+In Sturges' Rule, the number of bins is `11` and the bin width is `2.83`.
 
-plot(density(two_c_dataset), col="blue", main="2C Graph")
+### 2. Scott's Normal Reference Rule
+```{r}
+rand_data <- rnorm(800, mean=20, sd=5)
+n <- length(rand_data)
+scott_bin_width = (3.49 * sd(rand_data[c(1:80)])) / n^(1/3)
+scott_bin_number = ceiling(max(rand_data) - min(rand_data)) + scott_bin_width
 
-# negative STDs
-abline(v=sd(random_dataset) * -1, col="red", lty="dashed")
-abline(v=sd(random_dataset) * -2, col="red", lty="dashed")
-abline(v=sd(random_dataset) * -3, col="red", lty="dashed")
+ggplot(mapping = aes(rand_data)) +
+  geom_histogram(
+    bins=scott_bin_number, 
+    binwidth=scott_bin_width,
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) +
+  ggtitle("Histogram with Scott's Normal Reference Rule")
+```
+```{r}
+scott_bin_number
+scott_bin_width
+```
+In Scott's Normal Reference Rule, the number of bins is `38` and the bin width is `1.89`.
 
-# positive STDs
-abline(v=sd(random_dataset), col="red", lty="dashed")
-abline(v=sd(random_dataset) * 2, col="red", lty="dashed")
-abline(v=sd(random_dataset) * 3, col="red", lty="dashed")
+### 3. Freedman-Diaconis' Choice (Using IQR)
+```{r}
+rand_data <- rnorm(800, mean=20, sd=5)
+n <- length(rand_data)
+fd_bin_width = (2*IQR(rand_data)) / n^(1/3)
+fd_bin_number = ceiling(max(rand_data) - min(rand_data)) + fd_bin_width
+
+ggplot(mapping = aes(rand_data)) +
+  geom_histogram(
+    bins=fd_bin_number, 
+    binwidth=fd_bin_width,
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) +
+  ggtitle("Histogram with Friedman-Diaconis Choice")
 ```
 
 ```{r}
-sd(two_c_dataset)
+fd_bin_number
+fd_bin_width
 ```
+In Friedman-Diaconis Choice, the number of bins is `32.47621` and the bin width is `1.434905`.
+
+## (c)
+
+### 1. Sturges' Formula
+```{r}
+rand_data <- rnorm(800, mean=20, sd = 5) 
+out_data <- c(rand_data, runif(10, min=40, max=60))
+n <- length(out_data)
+sturges_bin_number = ceiling(log2(n)) + 1
+sturges_bin_width = (max(out_data) - min(out_data)) / sturges_bin_number
+
+ggplot(mapping = aes(out_data)) +
+  geom_histogram(
+    bins=sturges_bin_number, 
+    binwidth=sturges_bin_width,
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) +
+  ggtitle("Histogram with Sturges' Rule")
+```
+
+### 2. Scott's Normal Reference Rule
+```{r}
+rand_data <- rnorm(800, mean=20, sd = 5) 
+out_data <- c(rand_data, runif(10, min=40, max=60))
+n <- length(out_data)
+scott_bin_width = (3.49 * sd(out_data)) / n^(1/3)
+scott_bin_number = ceiling(max(out_data) - min(out_data)) + scott_bin_width
+
+ggplot(mapping = aes(out_data)) +
+  geom_histogram(
+    bins=scott_bin_number, 
+    binwidth=scott_bin_width,
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) +
+  ggtitle("Histogram with Scott's Normal Reference Rule")
+```
+
+### 3. Freedman-Diaconis' Choice (Using IQR)
+```{r}
+rand_data <- rnorm(800, mean=20, sd = 5) 
+out_data <- c(rand_data, runif(10, min=40, max=60))
+n <- length(out_data)
+fd_bin_width = (2*IQR(out_data)) / n^(1/3)
+fd_bin_number = ceiling(max(out_data) - min(out_data)) + fd_bin_width
+
+ggplot(mapping = aes(out_data)) +
+  geom_histogram(
+    bins=fd_bin_number, 
+    binwidth=fd_bin_width,
+    fill="#69b3a2", 
+    color="#e9ecef"
+  ) +
+  ggtitle("Histogram with Friedman-Diaconis' Choice")
+```
+
+## (d)
+It has been said above that outliers are able to increase or decrease Mean value dramatically. Thus, the bin width in Scott's Normal Reference Rule will change as soon as outliers are included in the system. Unlike Friedman-Diaconis' Choice which uses Inter Quartile Range (IQR). IQR can be acquired with
+$$
+IQR = Q(3/4) - Q(1/4)
+$$
+Clearly, there is no mean in the equation, and outliers won't affect the bin width at all in this scenario.

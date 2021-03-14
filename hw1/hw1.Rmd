@@ -2,9 +2,7 @@
 title: "BACS Homework 1"
 author: '109062710'
 date: "February 25, 2020"
-output:
-  pdf_document: default
-  html_document: default
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
