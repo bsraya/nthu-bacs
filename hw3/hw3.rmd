@@ -1,0 +1,30 @@
+---
+title: "BACS HW2"
+author: "109062710"
+date: "March 17, 2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(tinytex.verbose = TRUE)
+library(ggplot2)
+```
+
+# Question 1
+## a) create a normal distribution `(mean = 940, sd = 190)` and standardize it
+```{r}
+mean <- 940
+sd <- 190
+rnorm <- rnorm(1000, mean = mean, sd = sd)
+rnorm_std <- (rnorm - mean) / sd
+```
+
+```{r}
+hist(rnorm)
+hist(rnorm_std)
+```
+
+# Question 2
+
+# Question 3
