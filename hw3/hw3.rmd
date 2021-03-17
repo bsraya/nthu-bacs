@@ -11,28 +11,40 @@ options(tinytex.verbose = TRUE)
 library(ggplot2)
 library(glue)
 library(gridExtra)
+library(readr)
 ```
 
 # Question 1
 
 Here is the helper functions for Q1
 ```{r}
-density_plot <- function(data, title) {
+standardize <- function(data) {
+  standardized <- (data - mean(data)) / sd(data)
+  return(standardized)
+}
+
+create_density <- function(data, title) {
+  mean <- mean(data)
   ggplot(mapping = aes(data)) +
     geom_density(
-      fill="#FC4E07", 
+      fill="#69b3a2", 
       color="#e9ecef",
     ) +
+    geom_vline(xintercept = mean, col="black") + 
+    geom_vline(xintercept = c(sd(data) * -1, sd(data)), col="red") +
     ggtitle(title)
 }
 
-histogram_plot <- function(data, title) {
+create_histogram <- function(data, title) {
+  n = length(data)
+  
+  # Freidman-Darconis' Binwidth Rule
   binwidth <- (2 * IQR(data)) / n^(1/3)
   bins <- ceiling(max(data) - min(data)) + binwidth
   
   ggplot(mapping = aes(data)) +
     geom_histogram(
-      fill="#FC4E07", 
+      fill="#69b3a2", 
       color="#e9ecef",
       bins = bins,
       binwidth = binwidth
@@ -43,47 +55,163 @@ histogram_plot <- function(data, title) {
 
 ## A. create a normal distribution `(mean = 940, sd = 190)` and standardize it
 ```{r}
-n <- 1000
-mean <- 940
-sd <- 190
-
-rnorm <- rnorm(1000, mean = mean, sd = sd)
-rnorm_std <- (rnorm - mean) / sd
+rnorm <- rnorm(1000, mean = 940, sd = 190)
+rnorm_std <- standardize(rnorm)
 ```
 
 
 ### i) What should we expect the mean and standard deviation of rnorm_std to be, and why?
-
-```{r}
+```{r, include = FALSE}
 nonstd_rnorm_mean <- mean(rnorm)
 nonstd_rnorm_sd <- sd(rnorm)
 
 std_rnorm_mean <- mean(rnorm_std)
 std_rnorm_sd <- sd(rnorm_std)
-
-glue("The mean of non-standardized normal distribution is {nonstd_rnorm_mean}, and its standard deviation is {nonstd_rnorm_sd}.")
-glue("The mean of standardized normal distribution is {std_rnorm_mean}, and its standard deviation is {std_rnorm_sd}.")
 ```
 
-x value is between -3 to 3. each number represent how far (in STD unit) each instance from the mean.
-
-### ii)
 ```{r}
-nonstd_rnorm_hist <- histogram_plot(rnorm, "Non-STD ND Histogram")
+glue(
+  "The mean of rnorm is {nonstd_rnorm_mean}, 
+  and its standard deviation is {nonstd_rnorm_sd}."
+)
 
-nonstd_rnorm_density <- density_plot(rnorm, "Non-STD ND Density")
-
-std_rnorm_hist <- histogram_plot(rnorm_std, "Standardized ND Histogram")
-
-std_rnorm_density <- density_plot(rnorm_std, "Standardized ND Density")
-
-grid.arrange(nonstd_rnorm_hist, nonstd_rnorm_density, std_rnorm_hist, std_rnorm_density, ncol=2, nrow=2)
+glue(
+  "The mean of rnorm_std is {std_rnorm_mean}, 
+  and its standard deviation is {std_rnorm_sd}."
+)
 ```
 
-### iii) 
-It's called **bell-shaped curved** normal distribution
+```{r, include=FALSE}
+std_rnorm_hist <- 
+  create_histogram(
+    rnorm_std, 
+    "Standardized ND Histogram"
+  )
 
-## B. Create a standardized version of minday from the earlier question (let’s call it minday_std)
+std_rnorm_density <- 
+  create_density(
+    rnorm_std, 
+    "Standardized ND Density"
+  )
+```
+
+```{r}
+grid.arrange(
+  std_rnorm_hist, 
+  std_rnorm_density, 
+  ncol=1, 
+  nrow=2
+)
+```
+As we can see from the result above and the graph above, mean value and standard deviation value are concentrated around `-3` to `3`, instead of `0` to `1600` which before standardization. After standardization, each `x_value` in the graph represents how far each instance from the mean in STD unit. This happens because standardization scales down everything to STD unit scale.
+
+### ii) What should the distribution (shape) of rnorm_std look like, and why?
+```{r, include=FALSE}
+nonstd_rnorm_hist <- create_histogram(
+    rnorm, 
+    "Non-STD ND Histogram"
+  )
+
+nonstd_rnorm_density <- 
+  create_density(
+    rnorm, 
+    "Non-STD ND Density"
+  )
+```
+
+```{r}
+grid.arrange(
+  nonstd_rnorm_hist, 
+  nonstd_rnorm_density, 
+  std_rnorm_hist, 
+  std_rnorm_density, 
+  ncol=2, 
+  nrow=2
+)
+```
+Basically, `rnorm_std` plots should look entirely the same compared to `rnorm` plots. Let's take the graph above as our main reference.
+However, there are two key points worth mentioning here:
+1. Non-standardized and standardized histograms look almost the same, but there is a slight difference if you take a close look. 
+2. The Standard Deviation lines are located in unusual location in non-standardized histogram. Unlike in standardized histogram plot, the SD lines are located at the expected locations.
+
+### iii)  What do we generally call distributions that are normal and standardized?
+It's called **bell-shaped curved** distribution.
+
+## B. Create a standardized version of `minday` from the earlier question (let’s call it `minday_std`)
+
+```{r, include = FALSE}
+dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+hours  <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$hour
+mins   <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$min
+minday <- hours*60 + mins
+```
+
+```{r}
+minday_std <- standardize(minday)
+```
+
+### i) What should we expect the mean and standard deviation of `minday_std` to be, and why?
+```{r, include=FALSE}
+minday_std_mean <- mean(minday_std)
+minday_std_sd <- sd(minday_std)
+```
+
+```{r}
+glue("The mean of minday_std {minday_std_mean}, while its SD is {minday_std_sd}.")
+```
+we expect the mean and the STD values to be really small which are within `-2.5` to `2.5` range after standardization. This happens because standardization scales down everything to STD unit scale.
+
+### ii) What should the distribution of `minday_std` look like compared to `minday`, and why?
+Before standardization,
+```{r, include = FALSE}
+minday_hist <- 
+  create_histogram(
+    minday, 
+    "Minute (of the day) of first ever booking"
+  )
+
+minday_density <- 
+  create_density(
+    minday, 
+    "Minute (of the day) of first ever booking"
+  )
+```
+
+```{r}
+grid.arrange(
+  minday_hist, 
+  minday_density, 
+  ncol=1, 
+  nrow=2
+)
+```
+
+After standardization,
+```{r, include=FALSE}
+minday_std_hist <- 
+  create_histogram(
+    minday_std, 
+    "Minute (of the day) of first ever booking"
+  )
+
+minday_std_density <- 
+  create_density(
+    minday_std, 
+    "Minute (of the day) of first ever booking"
+  )
+```
+
+```{r}
+grid.arrange(
+  minday_std_hist, 
+  minday_std_density, 
+  ncol=1, 
+  nrow=2
+)
+```
+The situation is the similar to the section a, part ii. In the non-standardized data set, the STD lines are far away when we expect them to be. Besides, we have a huge range of `x_value` which is from `0` to `1500`.
+
+However, in the standardized data set, the mean line is exactly in between the STD lines. In addition, we have a smaller range of `x_value` which is from `-4` to `4`.
 
 # Question 2
 
