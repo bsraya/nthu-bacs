@@ -9,21 +9,81 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 options(tinytex.verbose = TRUE)
 library(ggplot2)
+library(glue)
+library(gridExtra)
 ```
 
 # Question 1
-## a) create a normal distribution `(mean = 940, sd = 190)` and standardize it
+
+Here is the helper functions for Q1
 ```{r}
+density_plot <- function(data, title) {
+  ggplot(mapping = aes(data)) +
+    geom_density(
+      fill="#FC4E07", 
+      color="#e9ecef",
+    ) +
+    ggtitle(title)
+}
+
+histogram_plot <- function(data, title) {
+  binwidth <- (2 * IQR(data)) / n^(1/3)
+  bins <- ceiling(max(data) - min(data)) + binwidth
+  
+  ggplot(mapping = aes(data)) +
+    geom_histogram(
+      fill="#FC4E07", 
+      color="#e9ecef",
+      bins = bins,
+      binwidth = binwidth
+    ) +
+    ggtitle(title)
+}
+```
+
+## A. create a normal distribution `(mean = 940, sd = 190)` and standardize it
+```{r}
+n <- 1000
 mean <- 940
 sd <- 190
+
 rnorm <- rnorm(1000, mean = mean, sd = sd)
 rnorm_std <- (rnorm - mean) / sd
 ```
 
+
+### i) What should we expect the mean and standard deviation of rnorm_std to be, and why?
+
 ```{r}
-hist(rnorm)
-hist(rnorm_std)
+nonstd_rnorm_mean <- mean(rnorm)
+nonstd_rnorm_sd <- sd(rnorm)
+
+std_rnorm_mean <- mean(rnorm_std)
+std_rnorm_sd <- sd(rnorm_std)
+
+glue("The mean of non-standardized normal distribution is {nonstd_rnorm_mean}, and its standard deviation is {nonstd_rnorm_sd}.")
+glue("The mean of standardized normal distribution is {std_rnorm_mean}, and its standard deviation is {std_rnorm_sd}.")
 ```
+
+x value is between -3 to 3. each number represent how far (in STD unit) each instance from the mean.
+
+### ii)
+```{r}
+nonstd_rnorm_hist <- histogram_plot(rnorm, "Non-STD ND Histogram")
+
+nonstd_rnorm_density <- density_plot(rnorm, "Non-STD ND Density")
+
+std_rnorm_hist <- histogram_plot(rnorm_std, "Standardized ND Histogram")
+
+std_rnorm_density <- density_plot(rnorm_std, "Standardized ND Density")
+
+grid.arrange(nonstd_rnorm_hist, nonstd_rnorm_density, std_rnorm_hist, std_rnorm_density, ncol=2, nrow=2)
+```
+
+### iii) 
+It's called **bell-shaped curved** normal distribution
+
+## B. Create a standardized version of minday from the earlier question (let’s call it minday_std)
 
 # Question 2
 
