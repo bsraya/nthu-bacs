@@ -1,5 +1,5 @@
 ---
-title: "BACS HW2"
+title: "BACS HW3"
 author: "109062710"
 date: "March 17, 2021"
 output: pdf_document
@@ -25,20 +25,28 @@ standardize <- function(data) {
 
 create_density <- function(data, title) {
   mean <- mean(data)
+  
+  sd_values = c(
+    mean(data) - 2 * sd(data), 
+    mean(data) - sd(data), 
+    mean(data) + sd(data), 
+    mean(data) + 2 * sd(data)
+  )
+  
   ggplot(mapping = aes(data)) +
     geom_density(
       fill="#69b3a2", 
       color="#e9ecef",
     ) +
     geom_vline(xintercept = mean, col="black") + 
-    geom_vline(xintercept = c(sd(data) * -1, sd(data)), col="red") +
+    geom_vline(xintercept = sd_values, col="red") +
     ggtitle(title)
 }
 
 create_histogram <- function(data, title) {
   n = length(data)
   
-  # Freidman-Darconis' Binwidth Rule
+  # Freidman-Darconis' BiUnwidth Rule
   binwidth <- (2 * IQR(data)) / n^(1/3)
   bins <- ceiling(max(data) - min(data)) + binwidth
   
@@ -58,7 +66,6 @@ create_histogram <- function(data, title) {
 rnorm <- rnorm(1000, mean = 940, sd = 190)
 rnorm_std <- standardize(rnorm)
 ```
-
 
 ### i) What should we expect the mean and standard deviation of rnorm_std to be, and why?
 ```{r, include = FALSE}
@@ -82,23 +89,23 @@ glue(
 ```
 
 ```{r, include=FALSE}
-std_rnorm_hist <- 
-  create_histogram(
-    rnorm_std, 
-    "Standardized ND Histogram"
+rnorm_density <- 
+  create_density(
+    rnorm, 
+    "Non-STD Density"
   )
 
-std_rnorm_density <- 
+rnorm_std_density <- 
   create_density(
     rnorm_std, 
-    "Standardized ND Density"
+    "STD Density"
   )
 ```
 
 ```{r}
 grid.arrange(
-  std_rnorm_hist, 
-  std_rnorm_density, 
+  rnorm_density, 
+  rnorm_std_density, 
   ncol=1, 
   nrow=2
 )
@@ -107,32 +114,36 @@ As we can see from the result above and the graph above, mean value and standard
 
 ### ii) What should the distribution (shape) of rnorm_std look like, and why?
 ```{r, include=FALSE}
-nonstd_rnorm_hist <- create_histogram(
+rnorm_hist <- 
+  create_histogram(
     rnorm, 
     "Non-STD ND Histogram"
   )
 
-nonstd_rnorm_density <- 
-  create_density(
-    rnorm, 
-    "Non-STD ND Density"
+rnorm_std_hist <- 
+  create_histogram(
+    rnorm_std, 
+    "STD ND Density"
   )
 ```
 
 ```{r}
 grid.arrange(
-  nonstd_rnorm_hist, 
-  nonstd_rnorm_density, 
-  std_rnorm_hist, 
-  std_rnorm_density, 
+  rnorm_hist, 
+  rnorm_density, 
+  rnorm_std_hist, 
+  rnorm_std_density, 
   ncol=2, 
   nrow=2
 )
 ```
-Basically, `rnorm_std` plots should look entirely the same compared to `rnorm` plots. Let's take the graph above as our main reference.
-However, there are two key points worth mentioning here:
+Basically, `rnorm_std` and `rnorm` plots should look entirely the same, but they are not. Let's take the graph above as a reference.
+
+However, there is a worth mentioning here:
+
 1. Non-standardized and standardized histograms look almost the same, but there is a slight difference if you take a close look. 
-2. The Standard Deviation lines are located in unusual location in non-standardized histogram. Unlike in standardized histogram plot, the SD lines are located at the expected locations.
+
+2. The `x_values` range becomes smaller in standardized density plot because standardization scales down everything to STD unit scale.
 
 ### iii)  What do we generally call distributions that are normal and standardized?
 It's called **bell-shaped curved** distribution.
@@ -159,7 +170,7 @@ minday_std_sd <- sd(minday_std)
 ```{r}
 glue("The mean of minday_std {minday_std_mean}, while its SD is {minday_std_sd}.")
 ```
-we expect the mean and the STD values to be really small which are within `-2.5` to `2.5` range after standardization. This happens because standardization scales down everything to STD unit scale.
+We expect the mean and the STD values to be really small which are within `-2.5` to `2.5` range after standardization because standardization scales down everything to STD unit scale.
 
 ### ii) What should the distribution of `minday_std` look like compared to `minday`, and why?
 Before standardization,
@@ -214,5 +225,55 @@ The situation is the similar to the section a, part ii. In the non-standardized 
 However, in the standardized data set, the mean line is exactly in between the STD lines. In addition, we have a smaller range of `x_value` which is from `-4` to `4`.
 
 # Question 2
+```{r}
+visualize_sample_ci <- function(num_samples = 100, sample_size = 100, 
+                                pop_size=10000, distr_func=rnorm, ...) {
+  # Simulate a large population
+  population_data <- distr_func(pop_size, ...)
+  pop_mean <- mean(population_data)
+  pop_sd <- sd(population_data)
+  
+  # Simulate samples
+  samples <- replicate(num_samples, 
+                       sample(population_data, sample_size, replace=FALSE))
+  
+  # Calculate descriptives of samples
+  sample_means = apply(samples, 2, FUN=mean)
+  sample_stdevs = apply(samples, 2, FUN=sd)
+  sample_stderrs <- sample_stdevs/sqrt(sample_size)
+  ci95_low  <- sample_means - sample_stderrs*1.96
+  ci95_high <- sample_means + sample_stderrs*1.96 
+  ci99_low  <- sample_means - sample_stderrs*2.58
+  ci99_high <- sample_means + sample_stderrs*2.58
+  
+  # Visualize confidence intervals of all samples
+  plot(NULL, xlim=c(pop_mean-(pop_sd/2), pop_mean+(pop_sd/2)), 
+       ylim=c(1,num_samples), ylab="Samples", xlab="Confidence Intervals")
+  add_ci_segment(ci95_low, ci95_high, ci99_low, ci99_high,
+                 sample_means, 1:num_samples, good=TRUE)
+  
+  # Visualize samples with CIs that don't include population mean
+  bad = which(((ci95_low > pop_mean) | (ci95_high < pop_mean)) |
+              ((ci99_low > pop_mean) | (ci99_high < pop_mean)))
+  add_ci_segment(ci95_low[bad], ci95_high[bad], ci99_low[bad], ci99_high[bad],
+                 sample_means[bad], bad, good=FALSE)
+  
+  # Draw true population mean
+  abline(v=mean(population_data))
+}
+
+add_ci_segment <- function(ci95_low, ci95_high, ci99_low, ci99_high, 
+                           sample_means, indices, good=TRUE) {
+  segment_colors <- list(c("lightcoral", "coral3", "coral4"),
+                         c("lightskyblue", "skyblue3", "skyblue4"))
+  color <- segment_colors[[as.integer(good)+1]]
+  
+  segments(ci99_low, indices, ci99_high, indices, lwd=3, col=color[1])
+  segments(ci95_low, indices, ci95_high, indices, lwd=3, col=color[2])
+  points(sample_means, indices, pch=18, cex=0.6, col=color[3])
+}
+
+visualize_sample_ci(sample_size=300, distr_func=runif, min=17, max=35)
+```
 
 # Question 3
