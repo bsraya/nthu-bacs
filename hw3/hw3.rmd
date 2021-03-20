@@ -63,20 +63,20 @@ create_histogram <- function(data, title) {
 
 ## A. create a normal distribution `(mean = 940, sd = 190)` and standardize it
 ```{r}
-rnorm <- rnorm(1000, mean = 940, sd = 190)
-rnorm_std <- standardize(rnorm)
+rnorm_q1 <- rnorm(1000, mean = 940, sd = 190)
+rnorm_std <- standardize(rnorm_q1)
 ```
 
 ### i) What should we expect the mean and standard deviation of rnorm_std to be, and why?
 ```{r, include = FALSE}
-nonstd_rnorm_mean <- mean(rnorm)
-nonstd_rnorm_sd <- sd(rnorm)
+nonstd_rnorm_mean <- mean(rnorm_q1)
+nonstd_rnorm_sd <- sd(rnorm_q1)
 
 std_rnorm_mean <- mean(rnorm_std)
 std_rnorm_sd <- sd(rnorm_std)
 ```
 
-```{r}
+```{r, echo=FALSE}
 glue(
   "The mean of rnorm is {nonstd_rnorm_mean}, 
   and its standard deviation is {nonstd_rnorm_sd}."
@@ -91,7 +91,7 @@ glue(
 ```{r, include=FALSE}
 rnorm_density <- 
   create_density(
-    rnorm, 
+    rnorm_q1, 
     "Non-STD Density"
   )
 
@@ -110,13 +110,13 @@ grid.arrange(
   nrow=2
 )
 ```
-As we can see from the result above and the graph above, mean value and standard deviation value are concentrated around `-3` to `3`, instead of `0` to `1600` which before standardization. After standardization, each `x_value` in the graph represents how far each instance from the mean in STD unit. This happens because standardization scales down everything to STD unit scale.
+In this case, the `mean` value is `0`. After standardization, `x_value` has a range of `-3` to `3`. That range represents how far each instance from the mean in STD unit. This happens because standardization scales down everything to STD unit scale.
 
 ### ii) What should the distribution (shape) of rnorm_std look like, and why?
 ```{r, include=FALSE}
 rnorm_hist <- 
   create_histogram(
-    rnorm, 
+    rnorm_q1, 
     "Non-STD ND Histogram"
   )
 
@@ -167,10 +167,10 @@ minday_std_mean <- mean(minday_std)
 minday_std_sd <- sd(minday_std)
 ```
 
-```{r}
+```{r, echo=FALSE}
 glue("The mean of minday_std {minday_std_mean}, while its SD is {minday_std_sd}.")
 ```
-We expect the mean and the STD values to be really small which are within `-2.5` to `2.5` range after standardization because standardization scales down everything to STD unit scale.
+We expect the mean and the STD values to be really small which are within `-2.5` to `2.5` range after standardization because standardization scales down everything to STD unit scale. In this case, `mean` becomes zero.
 
 ### ii) What should the distribution of `minday_std` look like compared to `minday`, and why?
 Before standardization,
@@ -225,9 +225,9 @@ The situation is the similar to the section a, part ii. In the non-standardized 
 However, in the standardized data set, the mean line is exactly in between the STD lines. In addition, we have a smaller range of `x_value` which is from `-4` to `4`.
 
 # Question 2
-```{r}
+```{r, include = FALSE}
 visualize_sample_ci <- function(num_samples = 100, sample_size = 100, 
-                                pop_size=10000, distr_func=rnorm, ...) {
+                                pop_size=10000, title, distr_func=rnorm, ...) {
   # Simulate a large population
   population_data <- distr_func(pop_size, ...)
   pop_mean <- mean(population_data)
@@ -247,8 +247,15 @@ visualize_sample_ci <- function(num_samples = 100, sample_size = 100,
   ci99_high <- sample_means + sample_stderrs*2.58
   
   # Visualize confidence intervals of all samples
-  plot(NULL, xlim=c(pop_mean-(pop_sd/2), pop_mean+(pop_sd/2)), 
-       ylim=c(1,num_samples), ylab="Samples", xlab="Confidence Intervals")
+  plot(
+    NULL, 
+    xlim=c(pop_mean-(pop_sd/2), pop_mean+(pop_sd/2)), 
+    ylim=c(1,num_samples), 
+    ylab="Samples", 
+    xlab="Confidence Intervals", 
+    main=title
+  )
+  
   add_ci_segment(ci95_low, ci95_high, ci99_low, ci99_high,
                  sample_means, 1:num_samples, good=TRUE)
   
@@ -273,7 +280,123 @@ add_ci_segment <- function(ci95_low, ci95_high, ci99_low, ci99_high,
   points(sample_means, indices, pch=18, cex=0.6, col=color[3])
 }
 
-visualize_sample_ci(sample_size=300, distr_func=runif, min=17, max=35)
+ci_95 <- function(num_samples = 100, sample_size = 100, 
+                                pop_size=10000, distr_func=rnorm, ...) {
+  # Simulate a large population
+  population_data <- distr_func(pop_size, ...)
+  pop_mean <- mean(population_data)
+  pop_sd <- sd(population_data)
+  
+  # Simulate samples
+  samples <- replicate(num_samples, 
+                       sample(population_data, sample_size, replace=FALSE))
+  
+  # Calculate descriptives of samples
+  sample_means = apply(samples, 2, FUN=mean)
+  sample_stdevs = apply(samples, 2, FUN=sd)
+  sample_stderrs <- sample_stdevs/sqrt(sample_size)
+  ci95_low  <- sample_means - sample_stderrs*1.96
+  ci95_high <- sample_means + sample_stderrs*1.96 
+  
+  # Visualize samples with CIs that don't include population mean
+  result = which(((ci95_low > pop_mean) | (ci95_high < pop_mean)))
+  return(result)
+}
+
+ci_99 <- function(num_samples = 100, sample_size = 100, 
+                                pop_size=10000, distr_func=rnorm, ...) {
+  # Simulate a large population
+  population_data <- distr_func(pop_size, ...)
+  pop_mean <- mean(population_data)
+  pop_sd <- sd(population_data)
+  
+  # Simulate samples
+  samples <- replicate(num_samples, 
+                       sample(population_data, sample_size, replace=FALSE))
+  
+  # Calculate descriptives of samples
+  sample_means = apply(samples, 2, FUN=mean)
+  sample_stdevs = apply(samples, 2, FUN=sd)
+  sample_stderrs <- sample_stdevs/sqrt(sample_size)
+  ci99_low  <- sample_means - sample_stderrs*2.58
+  ci99_high <- sample_means + sample_stderrs*2.58
+  
+  # Visualize samples with CIs that don't include population mean
+  result = which(((ci99_low > pop_mean) | (ci99_high < pop_mean)))
+  
+  return(result)
+}
 ```
+
+## a) Simulate 100 samples (each of size 100), from a normally distributed population of 10,000:
+### i) How many samples do we expect to NOT include the population mean in its 95% CI?
+```{r, echo=FALSE}
+ci95 <- c()
+for (i in 1:100){
+  ci95[i] <- length(
+    ci_95(
+      num_samples = 100, 
+      sample_size = 100, 
+      pop_size=10000, 
+      distr_func=rnorm, 
+      mean=20, 
+      sd=3
+    )
+  )
+}
+
+#Use mean as estimator
+cat (mean(ci95),"\n")
+```
+
+### ii) How many samples do we expect to NOT include the population mean in their 99% CI?
+```{r, echo=FALSE}
+ci99 <- c()
+for (i in 1:100){
+  ci99[i] <- length(
+    ci_99(
+      num_samples = 100, 
+      sample_size = 100, 
+      pop_size=10000, 
+      distr_func=rnorm, 
+      mean=20, 
+      sd=3
+    )
+  )
+}
+
+glue(mean(ci99))
+```
+
+## b) Rerun the previous simulation with larger samples (sample_size=300):
+### i) Now that the size of each sample has increased, do we expect their 95% and 99% CI to become wider or narrower than before?
+```{r, echo=FALSE}
+visualize_sample_ci(num_samples = 100, sample_size = 100, pop_size=10000, 
+                      distr_func=rnorm, mean=20, sd=3, title="Sample Size = 100")
+visualize_sample_ci(num_samples = 100, sample_size = 300, pop_size=10000, 
+                      distr_func=rnorm, mean=20, sd=3, title="Sample Size = 300")
+```
+As we can see from those two plots above, it becomes narrower when the sample size increases.
+
+### ii) This time, how many samples (out of the 100) would we expect to NOT include the population mean in its 95% CI?
+```{r, echo=FALSE}
+ci95 <- c()
+for (i in 1:100){
+  ci95[i] <- length(
+    ci_95(
+      num_samples = 100,
+      sample_size = 300, 
+      pop_size=10000, 
+      distr_func=rnorm, 
+      mean=20, 
+      sd=3
+    )
+  )
+}
+#Use mean as estimator
+glue(mean(ci95))
+```
+
+## c) If we ran the above two examples (a and b) using a uniformly distributed population (specify distr_func=runif for visualize_sample_ci), how do you expect your answers to (a) and (b) to change, and why?
 
 # Question 3
