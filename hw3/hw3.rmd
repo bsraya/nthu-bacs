@@ -151,8 +151,8 @@ It's called **bell-shaped curved** distribution.
 ## B. Create a standardized version of `minday` from the earlier question (let’s call it `minday_std`)
 
 ```{r, include = FALSE}
-# dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
-dataset <- read_csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+# dataset <- read_csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw3/first_bookings_datetime_sample.txt")
 hours  <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$hour
 mins   <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$min
 minday <- hours*60 + mins
@@ -447,10 +447,25 @@ Out of 100 simulations, the answer can be rounded down to 1 sample.
 ### i) Now that the size of each sample has increased, do we expect their 95% and 99% CI to become wider or narrower than before?
 
 ```{r, echo=FALSE}
-visualize_sample_ci(num_samples = 100, sample_size = 100, pop_size=10000, 
-                      distr_func=rnorm, mean=20, sd=3, title="Sample Size = 100")
-visualize_sample_ci(num_samples = 100, sample_size = 300, pop_size=10000, 
-                      distr_func=rnorm, mean=20, sd=3, title="Sample Size = 300")
+visualize_sample_ci(
+  num_samples = 100, 
+  sample_size = 100, 
+  pop_size=10000, 
+  distr_func=rnorm, 
+  mean=20, 
+  sd=3, 
+  title="Sample Size = 100"
+)
+
+visualize_sample_ci(
+  num_samples = 100, 
+  sample_size = 300, 
+  pop_size=10000, 
+  distr_func=rnorm, 
+  mean=20, 
+  sd=3, 
+  title="Sample Size = 300"
+)
 ```
 
 As we can see from those two plots above, the 95% and 99% CI become narrower when the sample size increases.
@@ -565,7 +580,7 @@ visualize_sample_ci(
 
 visualize_sample_ci(
   num_samples = 100, 
-  sample_size = 300, 
+  sample_size = 300,
   pop_size=10000, 
   distr_func=runif, 
   title="Sample Size = 300"
@@ -575,7 +590,6 @@ However,we can see that the the 95% and 99% CI are concentrated in `0.35 - 0.65`
 
 # Question 3
 ## a) What is the “average” booking time for new members making their first restaurant booking?
-(use minday, which is the absolute minute of the day from 0-1440)
 
 ### i) Use traditional statistical methods to estimate the population mean of minday, its standard error, and the 95% confidence interval (CI) of the sampling means
 ```{r}
@@ -595,21 +609,60 @@ The standard deviation error is
 glue(sd_error)
 ```
 
-The 95% CI is
+The 95% CI is between
 ```{r, echo=FALSE}
-glue(ci95_low)
-```
-
-The 99% CI is
-```{r, echo=FALSE}
-glue(ci95_high)
+glue("{ci95_low} & {ci95_high}")
 ```
 
 ### ii) Bootstrap to produce 2000 new samples from the original sample
+```{r}
+bootstrapped_samples <- replicate(2000, sample(minday, 10000, replace=TRUE))
+```
 
 ### iii) Visualize the means of the 2000 bootstrapped samples
+```{r, echo=FALSE}
+plot(
+  density(minday), 
+  lwd=1, 
+  main="Population & Bootstrapped Samples"
+)
+
+plot_sample <- function(sample) {
+  lines(
+    density(sample), 
+    col="#8cd9db"
+  )
+    
+  return(
+    mean(sample)
+  )
+}
+
+sample_means <- apply(bootstrapped_samples, 2, FUN=plot_sample)
+
+lines(density(minday), col="red", lwd=2, lty="dashed")
+
+legend(
+  "topleft", 
+  legend=c("Bootstrapped", "Population"), 
+  col=c("#8cd9db", "red"), 
+  lty = c("solid", "dashed"), 
+  bty = "n", 
+  pt.cex = 2, 
+  cex = 1.2, 
+  text.col = "black", 
+  horiz = F 
+)
+```
 
 ### iv) Estimate the 95% CI of the bootstrapped means.
+```{r, echo=FALSE}
+mean <- mean(bootstrapped_samples)
+sd_error <- sd(bootstrapped_samples) / ( length(bootstrapped_samples)^0.5 )
+ci95_low <- mean - 1.96 * sd_error
+ci95_high <- mean + 1.96 * sd_error
+glue("The 95% CI is between {ci95_low} and {ci95_high}")
+```
 
 ## b) By what time of day, have half the new members of the day already arrived at their restaurant?
 
@@ -619,5 +672,49 @@ median(minday)
 ```
 
 ### ii) Visualize the medians of the 2000 bootstrapped samples
+```{r, echo=FALSE}
+#visualize the bootstrapped samples medians
+plot(
+  density(minday), 
+  col="red", 
+  lty = "dashed", 
+  main="Medians of the 2000 Bootstrapped Samples"
+)
+
+plot_sample_median <- function(sample) {
+  abline(
+    v=median(sample),
+    col="#8cd9db"
+  ) 
+  
+  return(median(sample))
+}
+
+sample_medians <- apply(bootstrapped_samples, 2, FUN=plot_sample_median)
+
+abline(
+  v=median(minday), 
+  col="black"
+)
+
+legend(
+  "topleft", 
+  legend=c("Population", "Population Median", "Bootstrapped Median"), 
+  col=c("red", "black", "#8cd9db"), 
+  lty = c("dashed", "solid", "solid"), 
+  bty = "n", 
+  pt.cex = 2, 
+  cex = 1.2, 
+  text.col = "black", 
+  horiz = F 
+)
+```
 
 ### iii) Estimate the 95% CI of the bootstrapped medians.
+```{r, echo=FALSE}
+mean <- mean(sample_medians)
+sd_error <- sd(sample_medians) / ( length(sample_medians)^0.5 )
+ci95_low <- mean - 1.96 * sd_error
+ci95_high <- mean + 1.96 * sd_error
+glue("The 95% CI is between {ci95_low} and {ci95_high}")
+```
