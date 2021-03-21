@@ -151,7 +151,8 @@ It's called **bell-shaped curved** distribution.
 ## B. Create a standardized version of `minday` from the earlier question (let’s call it `minday_std`)
 
 ```{r, include = FALSE}
-dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+# dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+dataset <- read_csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw3/first_bookings_datetime_sample.txt")
 hours  <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$hour
 mins   <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$min
 minday <- hours*60 + mins
@@ -226,25 +227,35 @@ However, in the standardized data set, the mean line is exactly in between the S
 
 # Question 2
 ```{r, include = FALSE}
-visualize_sample_ci <- function(num_samples = 100, sample_size = 100, 
-                                pop_size=10000, title, distr_func=rnorm, ...) {
+visualize_sample_ci <- function(
+  num_samples = 100, 
+  sample_size = 100, 
+  pop_size=10000, 
+  title, 
+  distr_func=rnorm, ...) {
   # Simulate a large population
   population_data <- distr_func(pop_size, ...)
   pop_mean <- mean(population_data)
   pop_sd <- sd(population_data)
   
   # Simulate samples
-  samples <- replicate(num_samples, 
-                       sample(population_data, sample_size, replace=FALSE))
+  samples <- replicate(
+    num_samples, 
+    sample(
+      population_data, 
+      sample_size, 
+      replace=FALSE
+    )
+  )
   
   # Calculate descriptives of samples
   sample_means = apply(samples, 2, FUN=mean)
   sample_stdevs = apply(samples, 2, FUN=sd)
   sample_stderrs <- sample_stdevs/sqrt(sample_size)
-  ci95_low  <- sample_means - sample_stderrs*1.96
-  ci95_high <- sample_means + sample_stderrs*1.96 
-  ci99_low  <- sample_means - sample_stderrs*2.58
-  ci99_high <- sample_means + sample_stderrs*2.58
+  ci95_low  <- sample_means - sample_stderrs * 1.96
+  ci95_high <- sample_means + sample_stderrs * 1.96 
+  ci99_low  <- sample_means - sample_stderrs * 2.58
+  ci99_high <- sample_means + sample_stderrs * 2.58
   
   # Visualize confidence intervals of all samples
   plot(
@@ -256,40 +267,94 @@ visualize_sample_ci <- function(num_samples = 100, sample_size = 100,
     main=title
   )
   
-  add_ci_segment(ci95_low, ci95_high, ci99_low, ci99_high,
-                 sample_means, 1:num_samples, good=TRUE)
+  add_ci_segment(
+    ci95_low, 
+    ci95_high, 
+    ci99_low, 
+    ci99_high,
+    sample_means, 
+    1:num_samples, 
+    good=TRUE
+  )
   
   # Visualize samples with CIs that don't include population mean
-  bad = which(((ci95_low > pop_mean) | (ci95_high < pop_mean)) |
-              ((ci99_low > pop_mean) | (ci99_high < pop_mean)))
-  add_ci_segment(ci95_low[bad], ci95_high[bad], ci99_low[bad], ci99_high[bad],
-                 sample_means[bad], bad, good=FALSE)
+  bad = which(
+    ((ci95_low > pop_mean) | (ci95_high < pop_mean)) |
+    ((ci99_low > pop_mean) | (ci99_high < pop_mean))
+  )
+  
+  add_ci_segment(
+    ci95_low[bad], 
+    ci95_high[bad], 
+    ci99_low[bad], 
+    ci99_high[bad],
+    sample_means[bad], 
+    bad, 
+    good=FALSE
+  )
   
   # Draw true population mean
   abline(v=mean(population_data))
 }
 
-add_ci_segment <- function(ci95_low, ci95_high, ci99_low, ci99_high, 
-                           sample_means, indices, good=TRUE) {
-  segment_colors <- list(c("lightcoral", "coral3", "coral4"),
-                         c("lightskyblue", "skyblue3", "skyblue4"))
+add_ci_segment <- function(
+  ci95_low, 
+  ci95_high, 
+  ci99_low, 
+  ci99_high, 
+  sample_means, indices, good=TRUE) {
+  segment_colors <- list(
+    c("lightcoral", "coral3", "coral4"),
+    c("lightskyblue", "skyblue3", "skyblue4")
+  )
+  
   color <- segment_colors[[as.integer(good)+1]]
   
-  segments(ci99_low, indices, ci99_high, indices, lwd=3, col=color[1])
-  segments(ci95_low, indices, ci95_high, indices, lwd=3, col=color[2])
-  points(sample_means, indices, pch=18, cex=0.6, col=color[3])
+  segments(
+    ci99_low, 
+    indices, 
+    ci99_high, 
+    indices, 
+    lwd=3,
+    col=color[1]
+  )
+  
+  segments(
+    ci95_low, 
+    indices, 
+    ci95_high, 
+    indices, 
+    lwd=3, 
+    col=color[2]
+  )
+  
+  points(
+    sample_means, 
+    indices, 
+    pch=18, 
+    cex=0.6, 
+    col=color[3]
+  )
 }
 
-ci_95 <- function(num_samples = 100, sample_size = 100, 
-                                pop_size=10000, distr_func=rnorm, ...) {
+ci_95 <- function(
+  num_samples = 100, 
+  sample_size = 100, 
+  pop_size=10000, 
+  distr_func=rnorm, ...) {
   # Simulate a large population
   population_data <- distr_func(pop_size, ...)
   pop_mean <- mean(population_data)
   pop_sd <- sd(population_data)
   
   # Simulate samples
-  samples <- replicate(num_samples, 
-                       sample(population_data, sample_size, replace=FALSE))
+  samples <- replicate(
+    num_samples, 
+    sample(
+      population_data, 
+      sample_size, 
+      replace=FALSE)
+  )
   
   # Calculate descriptives of samples
   sample_means = apply(samples, 2, FUN=mean)
@@ -303,16 +368,24 @@ ci_95 <- function(num_samples = 100, sample_size = 100,
   return(result)
 }
 
-ci_99 <- function(num_samples = 100, sample_size = 100, 
-                                pop_size=10000, distr_func=rnorm, ...) {
+ci_99 <- function(
+  num_samples = 100, 
+  sample_size = 100, 
+  pop_size=10000, 
+  distr_func=rnorm, ...) {
   # Simulate a large population
   population_data <- distr_func(pop_size, ...)
   pop_mean <- mean(population_data)
   pop_sd <- sd(population_data)
   
   # Simulate samples
-  samples <- replicate(num_samples, 
-                       sample(population_data, sample_size, replace=FALSE))
+  samples <- replicate(
+    num_samples, 
+    sample(
+      population_data, 
+      sample_size, 
+      replace=FALSE)
+  )
   
   # Calculate descriptives of samples
   sample_means = apply(samples, 2, FUN=mean)
@@ -332,7 +405,7 @@ ci_99 <- function(num_samples = 100, sample_size = 100,
 ### i) How many samples do we expect to NOT include the population mean in its 95% CI?
 ```{r, echo=FALSE}
 ci95 <- c()
-for (i in 1:100){
+for (i in 1:200){
   ci95[i] <- length(
     ci_95(
       num_samples = 100, 
@@ -348,11 +421,12 @@ for (i in 1:100){
 #Use mean as estimator
 cat (mean(ci95),"\n")
 ```
+Out of 100 simulations, the answer can be rounded down to 5 samples.
 
 ### ii) How many samples do we expect to NOT include the population mean in their 99% CI?
 ```{r, echo=FALSE}
 ci99 <- c()
-for (i in 1:100){
+for (i in 1:200){
   ci99[i] <- length(
     ci_99(
       num_samples = 100, 
@@ -367,21 +441,24 @@ for (i in 1:100){
 
 glue(mean(ci99))
 ```
+Out of 100 simulations, the answer can be rounded down to 1 sample.
 
 ## b) Rerun the previous simulation with larger samples (sample_size=300):
 ### i) Now that the size of each sample has increased, do we expect their 95% and 99% CI to become wider or narrower than before?
+
 ```{r, echo=FALSE}
 visualize_sample_ci(num_samples = 100, sample_size = 100, pop_size=10000, 
                       distr_func=rnorm, mean=20, sd=3, title="Sample Size = 100")
 visualize_sample_ci(num_samples = 100, sample_size = 300, pop_size=10000, 
                       distr_func=rnorm, mean=20, sd=3, title="Sample Size = 300")
 ```
-As we can see from those two plots above, it becomes narrower when the sample size increases.
+
+As we can see from those two plots above, the 95% and 99% CI become narrower when the sample size increases.
 
 ### ii) This time, how many samples (out of the 100) would we expect to NOT include the population mean in its 95% CI?
 ```{r, echo=FALSE}
 ci95 <- c()
-for (i in 1:100){
+for (i in 1:200){
   ci95[i] <- length(
     ci_95(
       num_samples = 100,
@@ -393,10 +470,154 @@ for (i in 1:100){
     )
   )
 }
+
+#Use mean as estimator
+glue(mean(ci95))
+```
+Out of 100 simulations, the answer can be rounded down to 4 samples.
+
+## c) If we ran the above two examples (a and b) using a uniformly distributed population (specify distr_func=runif for visualize_sample_ci), how do you expect your answers to (a) and (b) to change, and why?
+
+### `num_sample = 100` & `distr_func = runif`
+i) How many samples do we expect to NOT include the population mean in their 95% CI? 
+```{r, echo=FALSE}
+ci95 <- c()
+for (i in 1:200){
+  ci95[i] <- length(
+    ci_95(
+      num_samples = 100,
+      sample_size = 100, 
+      pop_size = 10000, 
+      distr_func = runif
+    )
+  )
+}
+
 #Use mean as estimator
 glue(mean(ci95))
 ```
 
-## c) If we ran the above two examples (a and b) using a uniformly distributed population (specify distr_func=runif for visualize_sample_ci), how do you expect your answers to (a) and (b) to change, and why?
+ii) How many samples do we expect to NOT include the population mean in their 99% CI? 
+```{r, echo=FALSE}
+ci99 <- c()
+for (i in 1:200){
+  ci99[i] <- length(
+    ci_99(
+      num_samples = 100,
+      sample_size = 100, 
+      pop_size=10000, 
+      distr_func=runif
+    )
+  )
+}
+
+#Use mean as estimator
+glue(mean(ci99))
+```
+
+### `num_sample = 300` & `distr_func = runif`
+i) How many samples do we expect to NOT include the population mean in their 95% CI? 
+```{r, echo=FALSE}
+ci95 <- c()
+for (i in 1:200){
+  ci95[i] <- length(
+    ci_95(
+      num_samples = 100,
+      sample_size = 300, 
+      pop_size = 10000, 
+      distr_func = runif
+    )
+  )
+}
+
+#Use mean as estimator
+glue(mean(ci95))
+```
+
+ii) How many samples do we expect to NOT include the population mean in their 99% CI? 
+```{r, echo=FALSE}
+ci99 <- c()
+for (i in 1:200){
+  ci99[i] <- length(
+    ci_99(
+      num_samples = 100,
+      sample_size = 300, 
+      pop_size=10000, 
+      distr_func=runif
+    )
+  )
+}
+
+#Use mean as estimator
+glue(mean(ci99))
+```
+
+When we look at those two configurations above, we can see that the changes in mean and standard deviation values both in `rnorm` and `runif` follow the same pattern.
+
+```{r, echo=FALSE}
+visualize_sample_ci(
+  num_samples = 100, 
+  sample_size = 100, 
+  pop_size = 10000, 
+  distr_func = runif,
+  title = "Sample Size = 100"
+)
+
+visualize_sample_ci(
+  num_samples = 100, 
+  sample_size = 300, 
+  pop_size=10000, 
+  distr_func=runif, 
+  title="Sample Size = 300"
+)
+```
+However,we can see that the the 95% and 99% CI are concentrated in `0.35 - 0.65` range. Conversely, they are concentrated in `18.5 - 21.5` range. Clearly, the `x_value` range has been reduced in `distr_func = runif`.
 
 # Question 3
+## a) What is the “average” booking time for new members making their first restaurant booking?
+(use minday, which is the absolute minute of the day from 0-1440)
+
+### i) Use traditional statistical methods to estimate the population mean of minday, its standard error, and the 95% confidence interval (CI) of the sampling means
+```{r}
+mean <- mean(minday)
+sd_error <- sd(minday) / ( length(minday)^0.5 )
+ci95_low <- mean - 1.96 * sd_error
+ci95_high <- mean + 1.96 * sd_error
+```
+
+The mean value is
+```{r, echo=FALSE}
+glue(mean)
+```
+
+The standard deviation error is
+```{r, echo=FALSE}
+glue(sd_error)
+```
+
+The 95% CI is
+```{r, echo=FALSE}
+glue(ci95_low)
+```
+
+The 99% CI is
+```{r, echo=FALSE}
+glue(ci95_high)
+```
+
+### ii) Bootstrap to produce 2000 new samples from the original sample
+
+### iii) Visualize the means of the 2000 bootstrapped samples
+
+### iv) Estimate the 95% CI of the bootstrapped means.
+
+## b) By what time of day, have half the new members of the day already arrived at their restaurant?
+
+### i) Estimate the median of minday
+```{r, echo=FALSE}
+median(minday)
+```
+
+### ii) Visualize the medians of the 2000 bootstrapped samples
+
+### iii) Estimate the 95% CI of the bootstrapped medians.
