@@ -151,8 +151,8 @@ It's called **bell-shaped curved** distribution.
 ## B. Create a standardized version of `minday` from the earlier question (let’s call it `minday_std`)
 
 ```{r, include = FALSE}
-dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
-# dataset <- read_csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+# dataset <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw3/first_bookings_datetime_sample.txt")
+dataset <- read_csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw3/first_bookings_datetime_sample.txt")
 hours  <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$hour
 mins   <- as.POSIXlt(dataset$datetime, format="%m/%d/%Y %H:%M")$min
 minday <- hours*60 + mins
@@ -709,6 +709,15 @@ legend(
   horiz = F 
 )
 ```
+
+```{r, echo=FALSE}
+plot(
+  density(sample_medians), 
+  xlim=c(min(sample_medians)-10, max(sample_medians) + 10),
+  main="Bootstrap Medians in Density Plot"
+)
+```
+
 
 ### iii) Estimate the 95% CI of the bootstrapped medians.
 ```{r, echo=FALSE}
