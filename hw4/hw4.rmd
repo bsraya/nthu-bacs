@@ -20,19 +20,11 @@ library(rstatix)
 
 Given the critical DOI score that Google uses to detect malicious apps (-3.7), what is the probability that a randomly chosen app from Google’s app store will turn off the Verify security feature? (report a precise decimal fraction, not a percentage)
 
-```{r, echo=FALSE}
-pnorm(-3.7)
-```
-
 \textcolor {red} {
 The probability of an application from Google App Store would turn off the Verify security feature is `r pnorm(-3.7)`.
 }
 
 Assuming there were ~2.2 million apps when the article was written, what number of apps on the Play Store did Google expect would maliciously turn off the Verify feature once installed?
-
-```{r, echo=FALSE}
-2200000 * pnorm(-3.7)
-```
 
 \textcolor {red} {
 With approx. 2.2 million apps out there, we can expect `r 2200000 * pnorm(-3.7)` apps would maliciously turn off the Verify feature once installed.
@@ -264,7 +256,7 @@ compute_t <- function(sample) {
 
 sample_t <- apply(bootstrapped_samples, 2, FUN=compute_t)
 average_sample_t <- mean(sample_t)
-sample_t_sderr <- sd(sample_t) / (length(diff)^0.5)
+sample_t_sderr <- sd(sample_t) / (length(sample_t)^0.5)
 t_ci99_low <- average_sample_t - 2.58 * sample_t_sderr
 t_ci99_high <- average_sample_t + 2.58 * sample_t_sderr
 ```
