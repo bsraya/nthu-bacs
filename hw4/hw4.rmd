@@ -20,14 +20,22 @@ library(rstatix)
 
 Given the critical DOI score that Google uses to detect malicious apps (-3.7), what is the probability that a randomly chosen app from Google’s app store will turn off the Verify security feature? (report a precise decimal fraction, not a percentage)
 
+```{r, echo=FALSE}
+pnorm(-3.7)
+```
+
 \textcolor {red} {
-`r pnorm(-3.7)`
+The probability of an application from Google App Store would turn off the Verify security feature is `r pnorm(-3.7)`.
 }
 
 Assuming there were ~2.2 million apps when the article was written, what number of apps on the Play Store did Google expect would maliciously turn off the Verify feature once installed?
 
+```{r, echo=FALSE}
+2200000 * pnorm(-3.7)
+```
+
 \textcolor {red} {
-`r 2200000 * pnorm(-3.7)`
+With approx. 2.2 million apps out there, we can expect `r 2200000 * pnorm(-3.7)` apps would maliciously turn off the Verify feature once installed.
 }
 
 # Question 2
@@ -38,6 +46,7 @@ Before we dive in the questions down below, let's explore to see how the dataset
 
 ```{r, include = FALSE}
 verizon <- read_csv("verizon.csv")
+hypothesized_mean <- 7.6
 ```
 
 ```{r}
@@ -128,7 +137,7 @@ glue("
 ```
 
 ### 2. Given what PUC wishes to test, how would you write the hypothesis? (not graded)
-In this case, the null hypothesis is \textcolor{red}{"Verizon's average repair phone service time is 7.6 minutes"}.
+In this case, the null hypothesis will be \textcolor{red}{"Verizon's average repair phone service time is `r hypothesized_mean` minutes"}.
 
 ### 3. Estimate the population mean, and the 99% confidence interval (CI) of this estimate
 
@@ -146,12 +155,12 @@ ci99_high <- population_mean + population_sderr * 2.58
   While the 99\% CI of the population mean is between `r ci99_low` and `r ci99_high`.
 }
 
-Just making sure of it, we can visualize the entire data set and draw the mean and 99% CI lines.
+Just making sure of it, we can visualize the entire data set and draw the mean (black line) and 99% CI lines (red lines).
 
 ```{r}
 mean <- mean(verizon$Time)
 
-ggplot(mapping = aes(verizon$Time)) +
+ggplot(data = verizon, mapping = aes(verizon$Time)) +
   geom_density(
     fill="#69b3a2", 
     color="#e9ecef"
@@ -160,13 +169,14 @@ ggplot(mapping = aes(verizon$Time)) +
   coord_cartesian(xlim = c(0, 20)) +
   geom_vline(xintercept = mean) +
   geom_vline(xintercept = ci99_low, col="red") +
-  geom_vline(xintercept = ci99_high, col="red")
+  geom_vline(xintercept = ci99_high, col="red") +
+  theme(legend.position = c(1,1))
 ```
 
 ### 4. Using the traditional statistical testing methods we saw in class, find the t-statistic and p-value of the test
 
 ```{r}
-t <- (population_mean - 7.6) / population_sderr
+t <- (population_mean - hypothesized_mean) / population_sderr
 ```
 
 \textcolor{red} {
@@ -212,7 +222,7 @@ plot_sample_and_get_mean <- function(sample) {
   return(mean(sample))
 }
 
-sample_means <- apply(bootstrapped_samples, 2, FUN=plot_sample_and_get_mean)
+sample_means <- apply(bootstrapped_samples, 2,FUN=plot_sample_and_get_mean)
 
 lines(density(verizon$Time), col="red", lwd=2, lty="dashed")
 ```
@@ -230,7 +240,7 @@ mean_ci99_high <- average_sample_mean + 2.58 * sample_mean_sderror
 ### 2. Bootstrapped Difference of Means: What is the 99% CI of the bootstrapped difference between the population mean and the hypothesized mean?
 
 ```{r}
-diff <- sample_means - 7.6
+diff <- sample_means - hypothesized_mean
 diff_means <- mean(abs(diff))
 diff_sderror <- sd(diff) / (length(diff)^0.5)
 diff_ci99_low <- diff_means - 2.58 * diff_sderror
@@ -248,7 +258,7 @@ diff_ci99_high <- diff_means + 2.58 * diff_sderror
 compute_t <- function(sample) {
   sample_sderr <- sd(sample) / sqrt(length(sample))
   return (
-    (mean(sample) - 7.6) / sample_sderr
+    (mean(sample) - hypothesized_mean) / sample_sderr
   )
 }
 
@@ -269,13 +279,40 @@ plot(density(sample_means), main="Means of bootstrapped samples")
 ```
 
 ```{r}
-plot(density(diff), main="pop & hypo mean difference of bootstrapped samples")
+plot(density(diff), main="Population and Hypothesized mean difference\nof bootstrapped samples")
 ```
 
 ```{r}
-plot(density(sample_t), main="T-value of bootstrapped samples")
+plot(density(sample_t), main="T-value of Bootstrapped Samples")
 ```
 
 ## C. Do the four methods (traditional test, bootstrapped percentile, bootstrapped difference of means, bootstrapped T-Interval) agree with each other on the test?
 
+Before discussing whether the four methods agree with each other on the test, we should define what 99\% Confidence Interval is.
 
+By definition, 99\% Confidence Interval is a range where an unknown parameter will fall within the range for 99\% of the time.
+
+### Mean value
+\textcolor {blue} {
+From the traditional test, we have a population mean of `r population_mean`.
+From the bootstrapping test, we have a 99\% CI of mean between `r mean_ci99_low` and `r mean_ci99_high`. 
+Clearly, the population mean from the traditional test falls in the 99\% CI range. 
+}
+
+### Difference of population mean and hypothesized mean
+\textcolor {blue} {
+From the traditional test, we have a difference of population mean and hypothesized mean of `r population_mean - hypothesized_mean`.
+From the bootstrapping test, we have a 99\% CI of difference of population mean and hypothesized mean is between `r diff_ci99_low` and `r diff_ci99_high`. 
+Clearly, in this case, the difference of population mean and hypothesized mean that we get from the population sample falls in the 99\% CI range. 
+}
+
+### T-Interval value
+\textcolor {blue} {
+From the traditional test, we have a t-statistics value of `r t`.
+From the bootstrapping test, we have a 99\% CI of `t-statistics` or `t-value` is between `r t_ci99_low` and `r t_ci99_high`. 
+Clearly, in this case, the t-statistics value from the population falls in the 99\% CI range.
+}
+
+\textcolor {red} {
+From the tests and the observations above, we can conclude that these four methods agree on each other. After all, we can reject Verizon's claim (null hypothesis) because the T-Value both in the population sample and the bootstrapped samples is way further from 0. In the end, we end up having an alternate hypothesis with "Verizon's average repair phone service time is more than `r hypothesized_mean` minutes."
+}
