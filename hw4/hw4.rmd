@@ -21,13 +21,13 @@ library(rstatix)
 Given the critical DOI score that Google uses to detect malicious apps (-3.7), what is the probability that a randomly chosen app from Google’s app store will turn off the Verify security feature? (report a precise decimal fraction, not a percentage)
 
 \textcolor {red} {
-The probability of an application from Google App Store would turn off the Verify security feature is `r pnorm(-3.7)`.
+The probability of an application from Google App Store would turn off the Verify security feature is $pnorm(-3.7)$ = `r pnorm(-3.7)`.
 }
 
 Assuming there were ~2.2 million apps when the article was written, what number of apps on the Play Store did Google expect would maliciously turn off the Verify feature once installed?
 
 \textcolor {red} {
-With approx. 2.2 million apps out there, we can expect `r 2200000 * pnorm(-3.7)` apps would maliciously turn off the Verify feature once installed.
+With approx. 2.2 million apps out there, we can expect $2200000 \times pnorm(-3.7)$ = `r 2200000 * pnorm(-3.7)` apps would maliciously turn off the Verify feature once installed.
 }
 
 # Question 2
@@ -97,7 +97,6 @@ glue("
      ILEC maximum repair time -> {ilec_max}
 ")
 ```
-
 
 ```{r}
 clec <- as.data.frame(verizon[verizon$Group == "CLEC", ])
@@ -179,6 +178,7 @@ t <- (population_mean - hypothesized_mean) / population_sderr
 df <- nrow(verizon) - 1
 p <- 1 - pt(t, df)
 ```
+
 \textcolor{red} {
   P-value is `r p`
 }
@@ -221,10 +221,11 @@ lines(density(verizon$Time), col="red", lwd=2, lty="dashed")
 
 ```{r}
 average_sample_mean <- mean(sample_means)
-sample_mean_sderror <- sd(sample_means) / (length(sample_means)^0.5)
+sample_mean_sderror <- sd(sample_means) / sqrt(length(sample_means))
 mean_ci99_low <- average_sample_mean - 2.58 * sample_mean_sderror
 mean_ci99_high <- average_sample_mean + 2.58 * sample_mean_sderror
 ```
+
 \textcolor{red} {
   The 99\% CI of the mean is between `r mean_ci99_low` and `r mean_ci99_high`.
 }
@@ -234,7 +235,7 @@ mean_ci99_high <- average_sample_mean + 2.58 * sample_mean_sderror
 ```{r}
 diff <- sample_means - hypothesized_mean
 diff_means <- mean(abs(diff))
-diff_sderror <- sd(diff) / (length(diff)^0.5)
+diff_sderror <- sd(diff) / sqrt(length(diff))
 diff_ci99_low <- diff_means - 2.58 * diff_sderror
 diff_ci99_high <- diff_means + 2.58 * diff_sderror
 ```
@@ -244,9 +245,6 @@ diff_ci99_high <- diff_means + 2.58 * diff_sderror
 
 ### 3. Bootstrapped t-Interval: What is 99% CI of the bootstrapped t-statistic?
 ```{r}
-# population_sderr <- population_sd / sqrt(nrow(verizon))
-# t <- (population_mean - 7.6) / population_sderr
-
 compute_t <- function(sample) {
   sample_sderr <- sd(sample) / sqrt(length(sample))
   return (
@@ -256,10 +254,11 @@ compute_t <- function(sample) {
 
 sample_t <- apply(bootstrapped_samples, 2, FUN=compute_t)
 average_sample_t <- mean(sample_t)
-sample_t_sderr <- sd(sample_t) / (length(sample_t)^0.5)
+sample_t_sderr <- sd(sample_t) / sqrt(length(sample_t))
 t_ci99_low <- average_sample_t - 2.58 * sample_t_sderr
 t_ci99_high <- average_sample_t + 2.58 * sample_t_sderr
 ```
+
 \textcolor{red} {
   The 99\% CI of the bootstrapped t-statistic is between `r t_ci99_low` and `r t_ci99_high`.
 }
