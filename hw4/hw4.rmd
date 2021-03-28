@@ -20,14 +20,14 @@ library(rstatix)
 
 Given the critical DOI score that Google uses to detect malicious apps (-3.7), what is the probability that a randomly chosen app from Google’s app store will turn off the Verify security feature? (report a precise decimal fraction, not a percentage)
 
-\textcolor{blue} {
-this is an answer
+\textcolor {red} {
+`r pnorm(-3.7)`
 }
 
 Assuming there were ~2.2 million apps when the article was written, what number of apps on the Play Store did Google expect would maliciously turn off the Verify feature once installed?
 
-\textcolor{blue} {
-this is an answer
+\textcolor {red} {
+`r 2200000 * pnorm(-3.7)`
 }
 
 # Question 2
@@ -40,22 +40,6 @@ Before we dive in the questions down below, let's explore to see how the dataset
 verizon <- read_csv("verizon.csv")
 ```
 
-```{r, echo = FALSE}
-table(verizon["Group"])
-```
-
-```{r, echo = FALSE}
-max_reptime <- max(verizon$Time)
-min_reptime <- min(verizon$Time)
-glue("max_time -> {max_reptime} \n min_time -> {min_reptime}.")
-```
-
-There are two targets in the data set:
-
-* Competitive Local Exchange Carrier (CLEC) is a company that is characterized by providing local telephone service. It is those companies that have rented space from the Incumbent Local Exchange Carrier.
-
-* Incumbent Local Exchange Carrier (ILEC) is companies that are known to provide an alternative service to the ILEC within its territory. 
-
 ```{r}
 counts = as.data.frame(table(verizon["Group"]))
 ggplot(data=counts, aes(x=Var1, y=Freq)) +
@@ -67,9 +51,23 @@ ggplot(data=counts, aes(x=Var1, y=Freq)) +
   ggtitle("ILEC & CLEC")
 ```
 
+```{r, echo = FALSE}
+table(verizon["Group"])
+```
+
+From the graph above, we can see that there are two targets in the data set:
+
+* Competitive Local Exchange Carrier (CLEC) is a company that is characterized by providing local telephone service. It is those companies that have rented space from the Incumbent Local Exchange Carrier.
+
+* Incumbent Local Exchange Carrier (ILEC) is companies that are known to provide an alternative service to the ILEC within its territory. 
+
+We can also notice that, there are only 23 observations for CLEC and 1664 for ILEC.
+
+With `max()` and `min()` functions, the maximum and the minimum repair time can be acquired. With the maximum repair time `r max(verizon$Time)` minutes and the minimum repair time `r min(verizon$Time)` minute.
+
 ### 1. Visualize the distribution of Verizon’s repair times, marking the mean with a vertical line
 
-In this part, I am going to split the data set into two parts, ILEC and CLEC.
+In visualizing the data set, I am going to split the data set into two parts, ILEC and CLEC.
 ```{r}
 ilec <- as.data.frame(verizon[verizon$Group == "ILEC", ])
 
@@ -130,6 +128,7 @@ glue("
 ```
 
 ### 2. Given what PUC wishes to test, how would you write the hypothesis? (not graded)
+In this case, the null hypothesis is \textcolor{red}{"Verizon's average repair phone service time is 7.6 minutes"}.
 
 ### 3. Estimate the population mean, and the 99% confidence interval (CI) of this estimate
 
@@ -142,12 +141,12 @@ ci99_low <- population_mean - population_sderr * 2.58
 ci99_high <- population_mean + population_sderr * 2.58
 ```
 
-```{r}
-glue("
-  The population mean is {population_mean}.
-  The 99% CI is between {ci99_low} and {ci99_high}.  
-")
-```
+\textcolor{red} {
+  Thus, the population mean is `r population_mean`.
+  While the 99\% CI of the population mean is between `r ci99_low` and `r ci99_high`.
+}
+
+Just making sure of it, we can visualize the entire data set and draw the mean and 99% CI lines.
 
 ```{r}
 mean <- mean(verizon$Time)
@@ -166,30 +165,32 @@ ggplot(mapping = aes(verizon$Time)) +
 
 ### 4. Using the traditional statistical testing methods we saw in class, find the t-statistic and p-value of the test
 
-T-statistic
 ```{r}
 t <- (population_mean - 7.6) / population_sderr
-glue(t)
 ```
 
+\textcolor{red} {
+  T-statistic value is `r t`
+}
 
-P-value
 ```{r}
 df <- nrow(verizon) - 1
 p <- 1 - pt(t, df)
-glue(p)
 ```
+\textcolor{red} {
+  P-value is `r p`
+}
 
 ### 5. Briefly describe how these values relate to the Null distribution of t (not graded)
 
-### 6. What is your conclusion about the advertising claim from this t-statistic, and why?
-
-\textcolor{blue}{
+\textcolor{red}{
 The t-statistics or t-value measures the size of the difference relative to the variation in your sample data. Put another way, t-value is simply the calculated difference represented in units of standard error. The greater the magnitude of t-value, the greater the evidence against the null hypothesis.
 }
 
+### 6. What is your conclusion about the advertising claim from this t-statistic, and why?
+
 \textcolor{red}{
-In this case, we have t-value which is far away from 0. This means that what Verizon's repair time is not like what Verizon has advertised.
+  In this case, we have T-statistics value `r t` which is far away from 0. This means that what Verizon's repair time is not like what Verizon has advertised.
 }
 
 ## B. Let’s use bootstrapping on the sample data to examine this problem:
@@ -222,7 +223,9 @@ sample_mean_sderror <- sd(sample_means) / (length(sample_means)^0.5)
 mean_ci99_low <- average_sample_mean - 2.58 * sample_mean_sderror
 mean_ci99_high <- average_sample_mean + 2.58 * sample_mean_sderror
 ```
-The 99% CI of the mean is between `r mean_ci99_low` and `r mean_ci99_high`.
+\textcolor{red} {
+  The 99\% CI of the mean is between `r mean_ci99_low` and `r mean_ci99_high`.
+}
 
 ### 2. Bootstrapped Difference of Means: What is the 99% CI of the bootstrapped difference between the population mean and the hypothesized mean?
 
@@ -233,7 +236,9 @@ diff_sderror <- sd(diff) / (length(diff)^0.5)
 diff_ci99_low <- diff_means - 2.58 * diff_sderror
 diff_ci99_high <- diff_means + 2.58 * diff_sderror
 ```
-The 99% CI of the mean is between `r diff_ci99_low` and `r diff_ci99_high`.
+\textcolor{red} {
+  The 99\% CI of the mean is between `r diff_ci99_low` and `r diff_ci99_high`.
+}
 
 ### 3. Bootstrapped t-Interval: What is 99% CI of the bootstrapped t-statistic?
 ```{r}
@@ -253,7 +258,9 @@ sample_t_sderr <- sd(sample_t) / (length(diff)^0.5)
 t_ci99_low <- average_sample_t - 2.58 * sample_t_sderr
 t_ci99_high <- average_sample_t + 2.58 * sample_t_sderr
 ```
-The 99% CI of the bootstrapped t-statistic is between `r t_ci99_low` and `r t_ci99_high`.
+\textcolor{red} {
+  The 99\% CI of the bootstrapped t-statistic is between `r t_ci99_low` and `r t_ci99_high`.
+}
 
 ### 4. Plot separate distributions of all three bootstraps above (for 2 and 3 make sure to include zero on the x-axis)  
 
@@ -261,15 +268,14 @@ The 99% CI of the bootstrapped t-statistic is between `r t_ci99_low` and `r t_ci
 plot(density(sample_means), main="Means of bootstrapped samples")
 ```
 
-
 ```{r}
 plot(density(diff), main="pop & hypo mean difference of bootstrapped samples")
 ```
-
 
 ```{r}
 plot(density(sample_t), main="T-value of bootstrapped samples")
 ```
 
+## C. Do the four methods (traditional test, bootstrapped percentile, bootstrapped difference of means, bootstrapped T-Interval) agree with each other on the test?
 
-## C. Do the four methods (traditional test, bootstrapped percentile, bootstrapped difference of means, bootstrapped t-Interval) agree with each other on the test?
+
