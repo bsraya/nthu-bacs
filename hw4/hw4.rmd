@@ -35,12 +35,7 @@ With approx. 2.2 million apps out there, we can expect $2200000 \times pnorm(-3.
 ## A. The Null distribution of t-values:
 
 Before we dive in the questions down below, let's explore to see how the dataset looks like.
-
-```{r, include = FALSE}
-verizon <- read_csv("verizon.csv")
-hypothesized_mean <- 7.6
-```
-
+found
 ```{r}
 counts = as.data.frame(table(verizon["Group"]))
 ggplot(data=counts, aes(x=Var1, y=Freq)) +
@@ -91,10 +86,10 @@ ilec_max <- max(ilec$Time)
 ilec_min <- min(ilec$Time)
 ilec_mean <- mean(ilec$Time)
 glue("
-     Number of observation in ILEC -> {ilec_length}
-     ILEC minimum repair time -> {ilec_min}
-     ILEC average repair time -> {ilec_mean}
-     ILEC maximum repair time -> {ilec_max}
+Number of observation in ILEC -> {ilec_length}
+ILEC minimum repair time -> {ilec_min}
+ILEC average repair time -> {ilec_mean}
+ILEC maximum repair time -> {ilec_max}
 ")
 ```
 
@@ -120,10 +115,10 @@ clec_max <- max(clec$Time)
 clec_min <- min(clec$Time)
 clec_mean <- mean(clec$Time)
 glue("
-     Number of observation in CLEC -> {clec_length}
-     CLEC minimum repair time -> {clec_min}
-     CLEC average repair time -> {clec_mean} 
-     CLEC maximum repair time -> {clec_max}
+Number of observation in CLEC -> {clec_length}
+CLEC minimum repair time -> {clec_min}
+CLEC average repair time -> {clec_mean} 
+CLEC maximum repair time -> {clec_max}
 ")
 ```
 
