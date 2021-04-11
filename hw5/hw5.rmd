@@ -13,24 +13,12 @@ library(ggplot2)
 library(glue)
 library(gridExtra)
 library(readr)
-library(rstatix)
 library(ggpubr)
 ```
 
 Helper functions
 ```{r}
-mean <- function(sample) {
-  return(mean(sample))
-}
-
-ci <- function(sample, length, z_value) {
-  mean <- mean(sample)
-  sderr <- sd(sample) / sqrt(length)
-  return(list("low" = mean - z_value * sderr, "high" = mean + z_value * sderr))
-}
-
-density <- function(data) {
-  mean <- mean(data)
+plot_density <- function(data, mean) {
   return (ggplot(mapping = aes(data$Time)) +
     geom_density(
       fill="#69b3a2", 
@@ -38,7 +26,7 @@ density <- function(data) {
     ) +
     ggtitle("ILEC Repair Time") +
     coord_cartesian(xlim = c(0, max(data$Time))) +
-    geom_line(xintercept = mean))
+    geom_vline(xintercept = mean))
 }
 ```
 
@@ -52,103 +40,91 @@ hypothesized_mean <- 7.6
 ## a. Visualize Verizon’s response times for ILEC vs. CLEC customers
 ```{r}
 ilec <- as.data.frame(verizon[verizon$Group == "ILEC", ])
-
-ggplot(mapping = aes(ilec$Time)) +
-    geom_density(
-      fill="#69b3a2", 
-      color="#e9ecef"
-    ) +
-    ggtitle("ILEC Repair Time") +
-    coord_cartesian(xlim = c(0, max(ilec$Time)))
+ilec_mean <- mean(ilec$Time)
+plot_density(ilec, ilec_mean)
 ```
 
 ```{r}
 clec <- as.data.frame(verizon[verizon$Group == "CLEC", ])
-density(clec$Time, mean(clec$Time))
+clec_mean <- mean(clec$Time)
+plot_density(clec, clec_mean)Top Movies
 ```
 
 ## b. Use the appropriate form of the t.test() function to test the difference between the mean of ILEC sample response times versus the mean of CLEC sample response times. From the output of t.test():
 
 ### i. What are the appropriate null and alternative hypotheses in this case?
 
-The null hypothesis is CLEC's respond and repair service time is as quick as ILEC's repair time.
+The null hypothesis is the mean response time for ILEC and CLEC customers are the same.
 
-The alternative hypothesis is CLEC's respond and repair service time is not as quick as ILEC's repair time.
+The alternative hypothesis is the mean response time for ILEC and CLEC customers are not the same.
+
+### ii. Based on output of the t.test(), would you reject the null hypothesis or not?
+```{r}
+t.test(ilec$Time, clec$Time, alternative="two.sided")
+```
+
+Since the p-value is greater than equal `0.05`, then we say that we accept the null hypothesis.
+
+### c.
 
 ```{r}
-ilec_ci <- ci(ilec$time, nrow(ilec), 2.58)
-print(ilec_ci$low)
+bootstrap_null_alt <- function(sample0, hyp_mean) {
+  resample <- sample(sample0, length(sample0), replace = TRUE)
+  resample_se <- sd(resample) / sqrt(length(resample))
+  t_null<- (mean(resample) - mean(sample0)) / resample_se
+  t_alt <- (mean(resample) - hyp_mean) / resample_se
+  c(t_null, t_alt)
+}
+
+set.seed(38)
+boot <- replicate(10000, bootstrap_null_alt(ilec$Time, 7.6))
 ```
-
-
-
-
-
-
-
-
-
 
 
 ```{r}
-ilec_samples <- replicate(1000, sample(ilec$Time, nrow(ilec), replace=TRUE))
+t_null <- boot[1, ]
+quants_99_2sided <- qt(c(0.005, 0.995), length(t_null) - 1)
+plot(density(t_null), ylim= c(0, 0.45), xlim=c(-4,8.5), lwd = 3, lty="dashed", main = "Null and Alternative Distribution of T-Value")
+abline(v = quants_99_2sided, lty = "dotted")
 
-ilec_samples_means <- apply(ilec_samples, 2, FUN = compute_mean)
-average_ilec_means <- mean(ilec_samples_means)
-ilec_means_sderr <- sd(ilec_samples_means) / sqrt(length(ilec_samples_means))
-mean_ilec_ci99_low <- average_ilec_means - 2.58 * ilec_means_sderr
-mean_ilec_ci99_high <- average_ilec_means + 2.58 * ilec_means_sderr
+t_alt <- boot[2, ]
+lines(density(t_alt), lty="solid", lwd = 3, col = "cornflowerblue")
+abline(v = mean(t_alt), col="red")
+
+legend(4, 0.45, c("Null", "Alternative", "Critical Values of T", "Alternative Mean"), lty = c("dashed", "solid", "dotted", "solid"), lwd = c(2,2,1,1), col=c("black", "cornflowerblue", "black", "red"))
 ```
+
+
+
+## Question 2
+
+### a. What is the null and alternative hypotheses in this case?
+
+Since the variance of CLEC `r var(clec$Time)` is higher than the variance of ILEC `r var(ilec$Time)`, the null hypotheses is that the variance of CLEC will be the same like ILEC's if the major outliers in CLEC are removed. 
+
+While the alternative hypotheses is that the variance of CLEC will still be higher than ILEC's even if the major outliers in CLEC are removed. 
+
+### b. Let's try traditional statistical methods first:
+
+#### i. What is the F-statistics of the ratio of variances?
+
+The F-statistics value is `r var(clec_no_outliers)/var(ilec$Time)`.
+
+First, let's get `f_stats` and `f_cutoff`.
+```{r}
+f_stats <- var(clec_no_outliers)/var(ilec$Time)
+f_cutoff <- qf(p=0.95, df1 = length(clec_no_outliers) - 1, df2 = nrow(ilec) - 1)
+```
+
+The F-statistics value is `r f_stats` and 
 
 ```{r}
-clec_samples <- replicate(1000, sample(clec$Time, nrow(clec), replace=TRUE))
-
-clec_samples_means <- apply(clec_samples, 2, FUN = compute_mean)
-average_clec_means <- mean(clec_samples_means)
-clec_means_sderr <- sd(clec_samples_means) / sqrt(length(clec_samples_means))
-mean_clec_ci99_low <- average_clec_means - 2.58 * clec_means_sderr
-mean_clec_ci99_high <- average_clec_means + 2.58 * clec_means_sderr
+plot(density(ilec$Time), col="red", lwd = 3, xlim=c(-10, 40), ylim=c(0, 0.15), main="CLEC vs ILEC")
+lines(density(clec_no_outliers), col="cornflowerblue", lwd = 3)
+abline(v = f_stats, lty="solid", col="black")
+abline(v = f_cutoff, lty="dashed", col="green")
+legend(25,0.15, c("CLEC", "ILEC", "F-Statwhatistics", "F Cutoff"), lty=c("solid", "solid", "solid", "dashed"), lwd = c(3,3,1,1), col=c("cornflowerblue", "red", "black", "green"))
 ```
 
-```{r, echo=FALSE}
-ilec <- as.data.frame(verizon[verizon$Group == "ILEC", ])
 
-ilec_mean <- mean(ilec$Time)
 
-ilec_plot = ggplot(mapping = aes(ilec$Time)) +
-  geom_density(
-    fill="#69b3a2", 
-    color="#e9ecef"
-  ) +
-  ggtitle("ILEC Repair Time") +
-  coord_cartesian(xlim = c(8, 9)) +
-  geom_vline(xintercept = ilec_mean) + 
-  geom_vline(xintercept = mean_ilec_ci99_low, col="red") + 
-  geom_vline(xintercept = mean_ilec_ci99_high, col="red")
-```
-
-```{r, echo=FALSE}
-clec <- as.data.frame(verizon[verizon$Group == "CLEC", ])
-
-clec_mean <- mean(clec$Time)
-
-clec_plot = ggplot(mapping = aes(clec$Time)) +
-  geom_density(
-    fill="#69b3a2", 
-    color="#e9ecef"
-  ) +
-  ggtitle("CLEC Repair Time") +
-  coord_cartesian(xlim = c(15, 18)) +
-  geom_vline(xintercept = clec_mean) +
-  geom_vline(xintercept = mean_clec_ci99_low, col="red") + 
-  geom_vline(xintercept = mean_clec_ci99_high, col="red")
-```
-
-```{r}
-ggarrange(ilec_plot, clec_plot, 
-          labels = c("A", "B"),
-          ncol = 2, nrow = 1)
-```
-We can see from the graph above, we can reject our null hypothesis, saying **CLEC's respond and repair service time is as quick as ILEC's repair time**. 
-
-As the matter of fact, we should accept our alternative hypothesis, saying **CLEC's respond and repair service time is not as quick as ILEC's repair time**, instead
