@@ -1,0 +1,64 @@
+---
+title: "hw6"
+author: "Bijon Setyawan Raya"
+date: "4/17/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+```
+
+# Data Preparation
+
+```{r}
+m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
+m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
+m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
+m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
+media <- rbind(m1,m2,m3,m4)
+```
+
+# Question 1) Let’s describe and visualize the data:
+
+## a. What are the means of viewers intentions to share (INTEND.0) for each media type? (report four means)
+
+Here is the mean of `INTEND.0` in each data set: (starting from media1 all the way to media4)
+
+1. `media1$INTEND.0` mean: `r mean(m1$INTEND.0)`
+2. `media2$INTEND.0` mean: `r mean(m2$INTEND.0)`
+3. `media3$INTEND.0` mean: `r mean(m3$INTEND.0)`
+4. `media4$INTEND.0` mean: `r mean(m4$INTEND.0)`
+
+## b. Visualize the distribution and mean of intention to share, across all four media.
+
+```{r cars}
+test <- 
+  c("animation + audio", "pictures + audio", "pictures + text", "text only")
+
+boxplot(
+  INTEND.0 ~ media, 
+  data=media, 
+  main="Distribution by Media", 
+  xlab="Intention", 
+  ylab="Media", 
+  col="steelblue", 
+  border="black", 
+  horizontal = TRUE
+)
+```
+
+## c. From the visualization alone, do you feel that media type makes a difference on intention to share?
+
+# Question 2) Let’s try traditional one-way ANOVA:
+
+## a. State the null and alternative hypotheses when comparing INTEND.0 across four groups in ANOVA
+
+## b. Produce the traditional F-statistic for our test
+
+## c. What are the cut-off values of F for 95% and 99% confidence according the the null distribution of F?
+
+## d. According to the traditional ANOVA, do the four types of media produce the same mean intention to share, at 95% confidence? How about at 99% confidence?
+
+## e. Do you feel the classic requirements of one-way ANOVA are met?
