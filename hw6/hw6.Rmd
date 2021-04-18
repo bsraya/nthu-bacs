@@ -14,17 +14,11 @@ library(tidyverse)
 # Data Preparation
 
 ```{r}
-# Import datasets in Linux
-# m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
-# m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
-# m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
-# m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
-
-# Import datasets in MacOS
-m1 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media1.csv")
-m2 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media2.csv")
-m3 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media3.csv")
-m4 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media4.csv")
+# Import data sets in Linux
+m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
+m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
+m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
+m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
 
 media <- rbind(m1,m2,m3,m4)
 ```
@@ -42,10 +36,7 @@ media <- rbind(m1,m2,m3,m4)
 
 ## b. Visualize the distribution and mean of intention to share, across all four media.
 
-```{r cars}
-test <- 
-  c("animation + audio", "pictures + audio", "pictures + text", "text only")
-
+```{r}
 boxplot(
   INTEND.0 ~ media, 
   data=media, 
@@ -61,18 +52,11 @@ x0s <- 1:4 - 0.4
 x1s <- 1:4 + 0.4
 y0s <- c(mean(m1$INTEND.0), mean(m2$INTEND.0), mean(m3$INTEND.0), mean(m4$INTEND.0))
 segments(x0=y0s, y0=x0s, y1=x1s, col = "red")
-
-# segments(y0=0.6, y1=1.4, x0=mean(m1$INTEND.0), col = "red")
-# segments(y0=1.6, y1=2.4, x0=mean(m2$INTEND.0), col = "red")
-# segments(y0=2.6, y1=3.4, x0=mean(m3$INTEND.0), col = "red")
-# segments(y0=3.6, y1=4.4, x0=mean(m4$INTEND.0), col = "red")
 ```
 
 ## c. From the visualization alone, do you feel that media type makes a difference on intention to share?
 
-\textcolor{red} {
-In my opinion, the media won't affect the difference on intention to share.
-}
+\textcolor{red} {In my opinion, the media won't affect the difference on intention to share since the} `grand_mean` \textcolor{red} {value is} `r mean(media$INTEND.0)`.
 
 # 2. Let’s try traditional one-way ANOVA:
 
@@ -94,7 +78,7 @@ intend0 <- tibble(
     nrow(m4)
   ),
   group_mean = c(
-    mean(m1$INTEND.0), 
+    mean(m1$INTEND.0),
     mean(m2$INTEND.0), 
     mean(m3$INTEND.0), 
     mean(m4$INTEND.0)
@@ -129,16 +113,93 @@ mstr <- sstr/(n-1)
 sse <- sum(intend0$sse)
 mse <- sse/(nrow(media) - n)
 f <- mstr / mse
-f
 ```
 
-<<<<<<< Updated upstream
 \textcolor{red}{The F-statistics value is} `r f`.
 
-=======
->>>>>>> Stashed changes
 ## c. What are the cut-off values of F for 95% and 99% confidence according the the null distribution of F?
+
+The cut-off value of F for 95% is `r qf(0.95, df1 = n - 1, df2 = nrow(media) - 1)`, and the cut-off value of F for 99% is `r qf(0.99, df1 = n - 1, df2 = nrow(media) - 1)`.
 
 ## d. According to the traditional ANOVA, do the four types of media produce the same mean intention to share, at 95% confidence? How about at 99% confidence?
 
 ## e. Do you feel the classic requirements of one-way ANOVA are met?
+
+# 3. Let's try bootstrapping ANOVA
+
+## a. Bootstrap the null values of F and also the alternative values of the F-statistic.
+
+```{r}
+boot_anova <- function(t1, t2, t3, t4, treat_nums) {
+  null_sample <- c(
+    sample(t1 - mean(t1), length(t1), replace = TRUE),
+    sample(t2 - mean(t2), length(t2), replace = TRUE),
+    sample(t3 - mean(t3), length(t3), replace = TRUE),
+    sample(t4 - mean(t4), length(t4), replace = TRUE)
+  )
+  
+  alt_sample <- c(
+    sample(t1, length(t1), replace = TRUE),
+    sample(t2, length(t2), replace = TRUE),
+    sample(t3, length(t3), replace = TRUE),
+    sample(t4, length(t4), replace = TRUE)
+  )
+  
+  c(
+    oneway.test(null_sample ~ treat_nums, var.equal = TRUE)$statistic,
+    oneway.test(alt_sample ~ treat_nums, var.equal = TRUE)$statistic
+  )
+}
+
+f_values <- replicate(5000, boot_anova(m1$INTEND.0, m2$INTEND.0, m3$INTEND.0, m4$INTEND.0, media$media))
+
+f_nulls <- f_values[1,]
+f_alts <- f_values[2,]
+```
+
+## b. From the bootstrapped null values of F, What are the cutoff values for 95% and 99% confidence?
+
+```{r}
+quantile(f_nulls, 0.95)
+quantile(f_nulls, 0.99)
+```
+
+## c. Visualize the distribution of bootstrapped null values of F, the 95% and 99% cutoff values of F, and also the original F-value from bootstrapped alternative values.
+
+```{r}
+plot(
+  density(f_nulls), 
+  col = "black", 
+  lwd = 2, 
+  main = "Null Values Distribution"
+)
+abline(v = quantile(f_nulls, 0.95), col="blue", lty = "dashed")
+abline(v = quantile(f_nulls, 0.99), col="red",lty = "dashed")
+legend(
+  5,
+  0.68,
+  c("Null Value Distribution", "95% Cutoff", "99% Cutoff"),
+  lwd = c(2,1,1),
+  lty = c("solid", "dashed", "dashed"),
+  col = c("black", "blue", "red")
+)
+```
+
+```{r}
+plot(
+  density(f_alts), 
+  col = "black", 
+  lwd = 2, 
+  main = "Alternative Values Distribution"
+)
+abline(v = mean(f_alts), col="red", lty = "dashed")
+legend(
+  11,
+  0.20,
+  c("Alternative Value", "Mean"),
+  lwd = c(2,1),
+  lty = c("solid", "dashed"),
+  col = c("black", "red")
+)
+```
+
