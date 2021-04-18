@@ -15,10 +15,15 @@ library(tidyverse)
 
 ```{r}
 # Import data sets in Linux
-m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
-m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
-m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
-m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
+# m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
+# m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
+# m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
+# m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
+
+m1 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media1.csv")
+m2 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media2.csv")
+m3 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media3.csv")
+m4 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media4.csv")
 
 media <- rbind(m1,m2,m3,m4)
 ```
@@ -115,15 +120,51 @@ mse <- sse/(nrow(media) - n)
 f <- mstr / mse
 ```
 
-\textcolor{red}{The F-statistics value is} `r f`.
+\textcolor{red} {The F-statistics value is} `r f`.
 
 ## c. What are the cut-off values of F for 95% and 99% confidence according the the null distribution of F?
 
-The cut-off value of F for 95% is `r qf(0.95, df1 = n - 1, df2 = nrow(media) - 1)`, and the cut-off value of F for 99% is `r qf(0.99, df1 = n - 1, df2 = nrow(media) - 1)`.
+\textcolor{red} {The cut-off value of F for 95\% is} `r qf(0.95, df1 = n - 1, df2 = nrow(media) - 1)`\textcolor{red} {, and the cut-off value of F for 99\% is} `r qf(0.99, df1 = n - 1, df2 = nrow(media) - 1)`.
 
 ## d. According to the traditional ANOVA, do the four types of media produce the same mean intention to share, at 95% confidence? How about at 99% confidence?
 
+\textcolor{red} {From the (b) and (c), we can see that the f-value doesn't go across 95\% and 99\% cutoff values, we shouldn't reject the null hypothesis. In the other words, we can say that each media has the same mean value.}
+
 ## e. Do you feel the classic requirements of one-way ANOVA are met?
+
+Here are the requirements of one-way ANOVA:
+
+1. Variance Equality – That the variance of data in the different groups should be the same.
+2. Normality – That each sample is taken from a normally distributed population.
+
+```{r}
+intend0$var
+```
+
+\textcolor{red} {First, we can see above that, the variance from each data set quite differs from each other.}
+
+```{r}
+plot(
+  density(m1$INTEND.0), 
+  lwd = 2, 
+  col = "black", 
+  ylim = c(0, 0.30), 
+  main = "Distribution of INTEND.0 from 4 Datasets"
+)
+lines(density(m2$INTEND.0), lwd = 2, col = "coral3")
+lines(density(m3$INTEND.0), lwd = 2, col = "blue")
+lines(density(m4$INTEND.0), lwd = 2, col = "red")
+legend(
+  -0.5,
+  0.30,
+  c("Media 1", "Media 2", "Media 3", "Media 4"),
+  lwd = c(2,2,2,2),
+  lty = c("solid", "solid", "solid", "solid"),
+  col = c("black", "coral3", "blue", "red")
+)
+```
+
+\textcolor{red} {Second, from the graphs above, clearly the data sets are normally distributed. Thus, the classic requirements of one-way ANOVA are not met.}
 
 # 3. Let's try bootstrapping ANOVA
 
@@ -175,13 +216,14 @@ plot(
 )
 abline(v = quantile(f_nulls, 0.95), col="blue", lty = "dashed")
 abline(v = quantile(f_nulls, 0.99), col="red",lty = "dashed")
+abline(v = mean(f_nulls), col = "green", lty = "dashed")
 legend(
   5,
   0.68,
-  c("Null Value Distribution", "95% Cutoff", "99% Cutoff"),
-  lwd = c(2,1,1),
-  lty = c("solid", "dashed", "dashed"),
-  col = c("black", "blue", "red")
+  c("Null Value ", "Mean Value", "95% Cutoff", "99% Cutoff"),
+  lwd = c(2,1,1,1),
+  lty = c("solid", "dashed", "dashed", "dashed"),
+  col = c("black", "green", "blue", "red")
 )
 ```
 
@@ -203,3 +245,26 @@ legend(
 )
 ```
 
+## d. According to the bootstrap, do the four types of media produce the same mean intention to share. at 95% confidence and at 99% confidence?
+
+```{r, echo=FALSE}
+plot(
+  density(f_nulls), 
+  col = "black", 
+  lwd = 2, 
+  main = "Null Values Distribution"
+)
+abline(v = quantile(f_nulls, 0.95), col="blue", lty = "dashed")
+abline(v = quantile(f_nulls, 0.99), col="red",lty = "dashed")
+abline(v = mean(f_nulls), col = "green", lty = "dashed")
+legend(
+  5,
+  0.68,
+  c("Null Value ", "Mean Value", "95% Cutoff", "99% Cutoff"),
+  lwd = c(2,1,1,1),
+  lty = c("solid", "dashed", "dashed", "dashed"),
+  col = c("black", "green", "blue", "red")
+)
+```
+
+Since the graph above shows that the mean of null distribution is way behind the 95% cutoff value, let alone 99%. Thus we can say that these 4 medias produce the same mean intention to share.
