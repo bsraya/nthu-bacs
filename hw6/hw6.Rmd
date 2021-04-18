@@ -132,8 +132,11 @@ f <- mstr / mse
 f
 ```
 
+<<<<<<< Updated upstream
 \textcolor{red}{The F-statistics value is} `r f`.
 
+=======
+>>>>>>> Stashed changes
 ## c. What are the cut-off values of F for 95% and 99% confidence according the the null distribution of F?
 
 ## d. According to the traditional ANOVA, do the four types of media produce the same mean intention to share, at 95% confidence? How about at 99% confidence?
