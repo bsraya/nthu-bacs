@@ -14,23 +14,31 @@ library(tidyverse)
 # Data Preparation
 
 ```{r}
-m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
-m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
-m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
-m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
+# Import datasets in Linux
+# m1 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media1.csv")
+# m2 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media2.csv")
+# m3 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media3.csv")
+# m4 <- read.csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw6/pls-media4.csv")
+
+# Import datasets in MacOS
+m1 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media1.csv")
+m2 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media2.csv")
+m3 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media3.csv")
+m4 <- read.csv("/Users/bijonsetyawan/Documents/Git/bacs-hw/hw6/pls-media4.csv")
+
 media <- rbind(m1,m2,m3,m4)
 ```
 
-# Question 1) Let’s describe and visualize the data:
+# 1. Let’s describe and visualize the data:
 
 ## a. What are the means of viewers intentions to share (INTEND.0) for each media type? (report four means)
 
-Here is the mean of `INTEND.0` in each data set: (starting from media1 all the way to media4)
+\textcolor{red} {Here is the mean of} `INTEND.0` \textcolor{red} {in each data set: (starting from media1 all the way to media4)}
 
-1. `media1$INTEND.0` mean: `r mean(m1$INTEND.0)`
-2. `media2$INTEND.0` mean: `r mean(m2$INTEND.0)`
-3. `media3$INTEND.0` mean: `r mean(m3$INTEND.0)`
-4. `media4$INTEND.0` mean: `r mean(m4$INTEND.0)`
+1. `media1$INTEND.0` \textcolor{red} {mean:} `r mean(m1$INTEND.0)`
+2. `media2$INTEND.0` \textcolor{red} {mean:} `r mean(m2$INTEND.0)`
+3. `media3$INTEND.0` \textcolor{red} {mean:} `r mean(m3$INTEND.0)`
+4. `media4$INTEND.0` \textcolor{red} {mean:} `r mean(m4$INTEND.0)`
 
 ## b. Visualize the distribution and mean of intention to share, across all four media.
 
@@ -62,13 +70,15 @@ segments(x0=y0s, y0=x0s, y1=x1s, col = "red")
 
 ## c. From the visualization alone, do you feel that media type makes a difference on intention to share?
 
+\textcolor{red} {
 In my opinion, the media won't affect the difference on intention to share.
+}
 
-# Question 2) Let’s try traditional one-way ANOVA:
+# 2. Let’s try traditional one-way ANOVA:
 
 ## a. State the null and alternative hypotheses when comparing INTEND.0 across four groups in ANOVA
 
-*Null hypothesis* is the means of INTEND.0 in the four data sets are similar to each other. While the *Alternative hypothesis* is the means of INTEND.0 in the four data sets are not similar to each other.
+**Null hypothesis** \textcolor{red} {is the means of INTEND.0 in the four data sets are similar to each other. While the} **Alternative hypothesis** \textcolor{red} {is the means of INTEND.0 in the four data sets are not similar to each other.}
 
 ## b. Produce the traditional F-statistic for our test
 
@@ -122,6 +132,7 @@ f <- mstr / mse
 f
 ```
 
+\textcolor{red}{The F-statistics value is} `r f`.
 
 ## c. What are the cut-off values of F for 95% and 99% confidence according the the null distribution of F?
 
