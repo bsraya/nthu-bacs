@@ -8,6 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readr)
+library(tidyverse)
 ```
 
 # Data Preparation
@@ -43,19 +44,84 @@ boxplot(
   main="Distribution by Media", 
   xlab="Intention", 
   ylab="Media", 
-  col="steelblue", 
+  col="steelblue",  
   border="black", 
   horizontal = TRUE
 )
+
+x0s <- 1:4 - 0.4
+x1s <- 1:4 + 0.4
+y0s <- c(mean(m1$INTEND.0), mean(m2$INTEND.0), mean(m3$INTEND.0), mean(m4$INTEND.0))
+segments(x0=y0s, y0=x0s, y1=x1s, col = "red")
+
+# segments(y0=0.6, y1=1.4, x0=mean(m1$INTEND.0), col = "red")
+# segments(y0=1.6, y1=2.4, x0=mean(m2$INTEND.0), col = "red")
+# segments(y0=2.6, y1=3.4, x0=mean(m3$INTEND.0), col = "red")
+# segments(y0=3.6, y1=4.4, x0=mean(m4$INTEND.0), col = "red")
 ```
 
 ## c. From the visualization alone, do you feel that media type makes a difference on intention to share?
+
+In my opinion, the media won't affect the difference on intention to share.
 
 # Question 2) Let’s try traditional one-way ANOVA:
 
 ## a. State the null and alternative hypotheses when comparing INTEND.0 across four groups in ANOVA
 
+*Null hypothesis* is the means of INTEND.0 in the four data sets are similar to each other. While the *Alternative hypothesis* is the means of INTEND.0 in the four data sets are not similar to each other.
+
 ## b. Produce the traditional F-statistic for our test
+
+```{r}
+grand_mean <- mean(media$INTEND.0)
+
+intend0 <- tibble(
+  media = c(1,2,3,4),
+  instances = c(
+    nrow(m1), 
+    nrow(m2), 
+    nrow(m3), 
+    nrow(m4)
+  ),
+  group_mean = c(
+    mean(m1$INTEND.0), 
+    mean(m2$INTEND.0), 
+    mean(m3$INTEND.0), 
+    mean(m4$INTEND.0)
+  ),
+  var = c(
+    var(m1$INTEND.0),
+    var(m2$INTEND.0),
+    var(m3$INTEND.0),
+    var(m4$INTEND.0)
+  ),
+  sstr = c(
+    nrow(m1) * (mean(m1$INTEND.0) - grand_mean)^2,
+    nrow(m2) * (mean(m2$INTEND.0) - grand_mean)^2,
+    nrow(m3) * (mean(m3$INTEND.0) - grand_mean)^2,
+    nrow(m4) * (mean(m4$INTEND.0) - grand_mean)^2
+  ),
+  sse = c(
+    (nrow(m1) - 1) * sd(m1$INTEND.0)^2,
+    (nrow(m2) - 1) * sd(m2$INTEND.0)^2,
+    (nrow(m3) - 1) * sd(m3$INTEND.0)^2,
+    (nrow(m4) - 1) * sd(m4$INTEND.0)^2
+  ),
+)
+
+intend0
+```
+
+```{r}
+n <- 4
+sstr <- sum(intend0$sstr)
+mstr <- sstr/(n-1)
+sse <- sum(intend0$sse)
+mse <- sse/(nrow(media) - n)
+f <- mstr / mse
+f
+```
+
 
 ## c. What are the cut-off values of F for 95% and 99% confidence according the the null distribution of F?
 
