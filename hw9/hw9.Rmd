@@ -5,22 +5,124 @@ date: "4/22/2021"
 output: pdf_document
 ---
 
-## R Markdown
+Before answering the questions, let's discuss what Type 1 and Type 2 error first.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+A type 1 error is known as a false positive and occurs when a researcher incorrectly rejects a true null hypothesis. This means that your report that your findings are significant when in fact they have occurred by chance.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+A type II error is known as a false negative and occurs when a researcher fails to reject a null hypothesis which is really false. Here a researcher concludes there is not a significant effect, when actually there really is.
 
-```{r cars}
-summary(cars)
-```
+# Question 1
 
-## Including Plots
+## a. You discover that your colleague wanted to target the general population of Taiwanese users of the product. However, he only collected data from a pool of young consumers, and missed many older customers who you suspect might use the product much less every day.
 
-You can also embed plots, for example:
+* Would this scenario create systematic or random error (or both or neither)?
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+\textcolor{red}{
+In this scenario, it will be neither systematic nor random error. However, the data that he has are not representing the actual population being measured.
+}
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+* Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
+
+\textcolor{red}{Considering that he has a small data set, he has to gather more data. Once the number of data is increased, it will affect} $diff$ \textcolor{red}{and} $sd$.
+
+* Will it increase or decrease our power to reject the null hypothesis?
+
+\textcolor{red}{
+Since Taiwan's population is considered an aging population, my colleague might have missed a great number of older users who are fond of the new product. In addition, the older users might be the ones who are willing to afford the product and use it more often. If the older users were included in the data set, it would increase our power to reject the null hypothesis.
+
+In this case, where the users are mostly young people, our power to reject the null hypothesis is weak.
+}
+
+* Which kind of error (Type I or Type II) becomes more likely because of this scenario?
+
+\textcolor{red}{
+Since they are many busy young people these days, my colleague might conclude that the null hypothesis should be accepted. Clearly, the null hypothesis should be rejected if the older users were also included. Clearly, Type I error is more likely to happen.
+}
+
+## b. You find that 20 of the respondents are reporting data from the wrong wearable device, so they should be removed from the data. These 20 people are just like the others in every other respect.
+
+* Would this scenario create systematic or random error (or both or neither)?
+
+\textcolor{red}{
+asd
+}
+
+* Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
+
+\textcolor{red}{Clearly,} $diff$, $sd$ \textcolor{red}{and} $n$ \textcolor{red}{will change.}
+
+* Will it increase or decrease our power to reject the null hypothesis?
+
+\textcolor{red}{
+asd
+}
+
+* Which kind of error (Type I or Type II) becomes more likely because of this scenario?
+
+\textcolor{red}{
+asd
+}
+
+## c. A very annoying professor visiting your company has criticized your colleague’s “95% confidence” criteria, and has suggested relaxing it to just 90%.
+
+* Would this scenario create systematic or random error (or both or neither)?
+
+\textcolor{red}{
+asd
+}
+
+* Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
+
+\textcolor{red}{
+asd
+}
+
+* Will it increase or decrease our power to reject the null hypothesis?
+
+\textcolor{red}{
+asd
+}
+
+* Which kind of error (Type I or Type II) becomes more likely because of this scenario?
+
+\textcolor{red}{
+asd
+}
+
+## d. Your colleague has measured usage times on five weekdays and taken a daily average. But you feel this will under report usage for younger people who are very active on weekends, whereas it over-reports usage of older users.
+
+* Would this scenario create systematic or random error (or both or neither)?
+
+\textcolor{red}{
+asd
+}
+
+* Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
+
+\textcolor{red}{
+asd
+}
+
+* Will it increase or decrease our power to reject the null hypothesis?
+
+\textcolor{red}{
+asd
+}
+
+* Which kind of error (Type I or Type II) becomes more likely because of this scenario?
+
+\textcolor{red}{
+asd
+}
+
+# Question 2
+
+## a. Visualize the differences between blue-yellow accuracy (BY_ACC) and red-green accuracy (RG_ACC) for both the sad and neutral viewers (Emotion_Condition). You are free to choose any visualization method you wish, but only report the most useful visualizations and any first impressions.
+
+## b. Run a t-test (traditional) to check if there is a significant difference in blue-yellow accuracy between sad and neutral participants at 95% confidence.
+
+## c. Run a t-test (traditional) to check if there is a significant difference in red-green accuracy between sad and neutral participants at 95% confidence.
+
+## d. (not graded) Do the above t-tests support a claim that there is an interaction between emotion and color axis? (i.e., does people’s accuracy of color perception along different color-axes depend on their emotion? Here, accuracy is an outcome variable, while color-axis and emotion are independent factors)
+
+## e. Run a factorial design ANOVA where color perception accuracy is determined by
