@@ -7,9 +7,9 @@ output: pdf_document
 
 Before answering the questions, let's discuss what Type 1 and Type 2 error first.
 
-A type 1 error is known as a false positive and occurs when a researcher incorrectly rejects a true null hypothesis. This means that your report that your findings are significant when in fact they have occurred by chance.
+A \textcolor{purple}{Type I Error} is known as a false positive and occurs when a researcher incorrectly rejects a true null hypothesis. This means that your report that your findings are significant when in fact they have occurred by chance.
 
-A type II error is known as a false negative and occurs when a researcher fails to reject a null hypothesis which is really false. Here a researcher concludes there is not a significant effect, when actually there really is.
+A \textcolor{purple}{Type II Error} is known as a false negative and occurs when a researcher fails to reject a null hypothesis which is really false. Here a researcher concludes there is not a significant effect, when actually there really is.
 
 # Question 1
 
@@ -17,112 +17,182 @@ A type II error is known as a false negative and occurs when a researcher fails 
 
 * Would this scenario create systematic or random error (or both or neither)?
 
-\textcolor{red}{
-In this scenario, it will be neither systematic nor random error. However, the data that he has are not representing the actual population being measured.
-}
+\textcolor{blue}{In this scenario, it will be neither systematic nor random error. However, the data that he has are not representing the actual population being measured.}
 
 * Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
 
-\textcolor{red}{Considering that he has a small data set, he has to gather more data. Once the number of data is increased, it will affect} $diff$ \textcolor{red}{and} $sd$.
+\textcolor{blue}{Considering that he has a small data set, he has to gather more data. Once the number of data is increased, it will affect} $diff$ \textcolor{blue}{and} $sd$.
 
 * Will it increase or decrease our power to reject the null hypothesis?
 
-\textcolor{red}{
-Since Taiwan's population is considered an aging population, my colleague might have missed a great number of older users who are fond of the new product. In addition, the older users might be the ones who are willing to afford the product and use it more often. If the older users were included in the data set, it would increase our power to reject the null hypothesis.
+\textcolor{purple}{Since Taiwan's population is considered an aging population, my colleague might have missed a great number of older users who are fond of the new product. In addition, the older users might be the ones who are willing to afford the product and use it more often. If the older users were included in the data set, it would increase our power to reject the null hypothesis.}
 
-In this case, where the users are mostly young people, our power to reject the null hypothesis is weak.
-}
+\textcolor{blue}{In this case, where the users are mostly young people, our power to reject the null hypothesis is weak.}
 
 * Which kind of error (Type I or Type II) becomes more likely because of this scenario?
 
-\textcolor{red}{
-Since they are many busy young people these days, my colleague might conclude that the null hypothesis should be accepted. Clearly, the null hypothesis should be rejected if the older users were also included. Clearly, Type I error is more likely to happen.
-}
+\textcolor{blue}{Since they are many busy young people these days, my colleague might conclude that the null hypothesis should be accepted. Clearly, the null hypothesis should be rejected if the older users were also included. Thus, Type I error is more likely to happen.}
 
 ## b. You find that 20 of the respondents are reporting data from the wrong wearable device, so they should be removed from the data. These 20 people are just like the others in every other respect.
 
 * Would this scenario create systematic or random error (or both or neither)?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{Since my colleague has less and less data points in the data set, it might bring the mean value closer to null hypothesis' mean value rather than the true mean value of a complete population. Thus, random error is more likely to happen since the number of data points is small.}
 
 * Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
 
-\textcolor{red}{Clearly,} $diff$, $sd$ \textcolor{red}{and} $n$ \textcolor{red}{will change.}
+According to [a paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5059270/) published at NCBI, random error and systematic error can affect $alpha$ or P-value.
+
+\textcolor{blue} {Clearly,} $diff$, $sd$, $n$, \textcolor{blue}{and} $alpha$ \textcolor{blue}{will change.}
 
 * Will it increase or decrease our power to reject the null hypothesis?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue} {Our power to reject the null hypothesis is getting weaker.}
 
 * Which kind of error (Type I or Type II) becomes more likely because of this scenario?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue} {It sounds similar to scenario (a), thus type I error is more likely.}
 
 ## c. A very annoying professor visiting your company has criticized your colleague’s “95% confidence” criteria, and has suggested relaxing it to just 90%.
 
 * Would this scenario create systematic or random error (or both or neither)?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{Neither of these two errors will happen.}
 
 * Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue} {Alpha value will change from 0.05 to 0.1.}
 
 * Will it increase or decrease our power to reject the null hypothesis?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{It will increase the power to reject the null hypothesis because the size of the purple area increases.}
 
 * Which kind of error (Type I or Type II) becomes more likely because of this scenario?
 
-\textcolor{red}{
-asd
+\textcolor{blue}{Since the numyber of data points is small, Random Error is more likely to happen and Random Error is believed to favor the null hypothesis over the alternative one, stated in} [this research paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5059270/)\textcolor{blue}{. Also, by relaxing the p-value to 90%, the size of the purple area will increase. Thus, my colleague might mistakenly accept the null hypothesis. Clearly, the Type I Error would more likely to happen.
 }
 
 ## d. Your colleague has measured usage times on five weekdays and taken a daily average. But you feel this will under report usage for younger people who are very active on weekends, whereas it over-reports usage of older users.
 
 * Would this scenario create systematic or random error (or both or neither)?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{In this scenario, both errors will occur. The reason that systematic error occurs is instead of observing users activity everyday, my colleague chose to observe them 5 days in a week. While the random error occurs because the number of data points might decrease significantly by leaving young users unobserved.}
 
 * Which part of the t-statistic or significance (diff, sd, n, alpha) would be affected?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{Since the older users are over reported and younger users are under reported, it increases the mean value. Thus, diff, sd, and alpha will increase. While the number of users will decrease.}
 
 * Will it increase or decrease our power to reject the null hypothesis?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{Since the number of over reported old users is high, it will increase the power to reject the null hypothesis.}
 
 * Which kind of error (Type I or Type II) becomes more likely because of this scenario?
 
-\textcolor{red}{
-asd
-}
+\textcolor{blue}{Since the number of over reported old users is high, it convinces my colleague to reject the null hypothesis. In reality, if he observed old and young users everyday in a week, the null hypothesis should be accepted. In this scenario, my colleague is incorrectly rejects the null hypothesis. Thus, Type I Error is more likely to happen.}
 
 # Question 2
 
+```{r, echo=FALSE}
+library(readr)
+emotion <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw9/study2Data.csv")
+sad <- emotion[emotion$Emotion_Condition == "Sadness",]
+neutral <- emotion[emotion$Emotion_Condition == "Neutral",]
+```
+
 ## a. Visualize the differences between blue-yellow accuracy (BY_ACC) and red-green accuracy (RG_ACC) for both the sad and neutral viewers (Emotion_Condition). You are free to choose any visualization method you wish, but only report the most useful visualizations and any first impressions.
+
+```{r}
+plot(density(sad$BY_ACC), main="Blue Yellow Accuracy", col="red", lwd = 2)
+lines(density(neutral$BY_ACC), col="black", lwd = 2)
+
+abline(v=mean(sad$BY_ACC), col="red", lwd = 2, lty="dotted")
+abline(v=mean(neutral$BY_ACC), col="black", lwd = 2, lty="dotted")
+
+legend(
+  0.85,
+  5,
+  c("Sadness", "Neutral"),
+  lty = c("solid", "solid"),
+  col = c("red", "black"),
+)
+```
+
+
+```{r}
+plot(density(sad$RG_ACC), main="Red Green Accuracy", col="red", lwd = 2)
+lines(density(neutral$RG_ACC), col="black", lwd = 2)
+
+abline(v=mean(sad$RG_ACC), col="red", lwd = 2, lty="dotted")
+abline(v=mean(neutral$RG_ACC), col="black", lwd = 2, lty="dotted")
+
+legend(
+  0.1,
+  2.2,
+  c("Sadness", "Neutral"),
+  lty = c("solid", "solid"),
+  col = c("red", "black"),
+)
+```
+
+```{r}
+sad_diff <- sad$RG_ACC - sad$BY_ACC
+neutral_diff <- neutral$RG_ACC - neutral$BY_ACC
+
+plot(density(sad_diff), lwd = 2, col="red", main = "RG_ACC & BY_ACC Difference")
+lines(density(neutral_diff), lwd = 2, col="black")
+legend(
+  0.3, 
+  2.3,
+  c("Sadness", "Neutral"),
+  lty = c("solid", "solid"),
+  lwd = c(2,2),
+  col = c("red", "black")
+)
+```
+
+```{r}
+accuracies <- c(sad$BY_ACC, sad$RG_ACC, neutral$BY_ACC, neutral$RG_ACC)
+BY_RG_ACC <- 
+  data.frame(
+    S_BY = sad$BY_ACC, 
+    S_RG = sad$RG_ACC, 
+    N_BY = neutral$BY_ACC, 
+    N_RG = neutral$RG_ACC
+  )
+
+boxplot(
+  BY_RG_ACC,
+  horizontal = TRUE,
+  col = "steelblue"
+)
+
+y0s <- 1:4 - 0.4
+y1s <- 1:4 + 0.4
+means <- c(mean(sad$BY_ACC),mean(sad$RG_ACC),mean(neutral$BY_ACC),mean(neutral$RG_ACC))
+segments(x0 = means, y0 = y0s, y1 = y1s, col="red", lwd = 2)
+
+abline(v = mean(accuracies), lwd = 2, col="purple", lty="dashed")
+```
+
+From the graph above, we can see that the difference and the mean of each treatment don't differ that much.
 
 ## b. Run a t-test (traditional) to check if there is a significant difference in blue-yellow accuracy between sad and neutral participants at 95% confidence.
 
+```{r}
+t.test(sad$BY_ACC, neutral$BY_ACC)
+```
+
+Since the p-value is less than `0.05`, we can safely reject the null hypothesis and accept the alternative hypothesis. Thus, since the p-value is less than `0.05`, we can say that the result is statistically significant.
+
 ## c. Run a t-test (traditional) to check if there is a significant difference in red-green accuracy between sad and neutral participants at 95% confidence.
+
+```{r}
+t.test(sad$RG_ACC, neutral$RG_ACC)
+```
+
+Since the p-value is greater than `0.05`, we can not reject the null hypothesis and, thus, the result is not statistically significant.
 
 ## d. (not graded) Do the above t-tests support a claim that there is an interaction between emotion and color axis? (i.e., does people’s accuracy of color perception along different color-axes depend on their emotion? Here, accuracy is an outcome variable, while color-axis and emotion are independent factors)
 
-## e. Run a factorial design ANOVA where color perception accuracy is determined by
+## e. Run a factorial design ANOVA where color perception accuracy is determined by (sad vs. neutral), color-axis (RG vs. BY), and the interaction of emotion and color-axis.
+
