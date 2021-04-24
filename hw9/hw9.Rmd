@@ -5,7 +5,7 @@ date: "4/22/2021"
 output: pdf_document
 ---
 
-Before answering the questions, let's discuss what Type 1 and Type 2 error first.
+Before answering the questions, let's discuss what Type I Error and Type II Error first.
 
 A \textcolor{purple}{Type I Error} is known as a false positive and occurs when a researcher incorrectly rejects a true null hypothesis. This means that your report that your findings are significant when in fact they have occurred by chance.
 
@@ -92,7 +92,7 @@ According to [a paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5059270/) pu
 
 # Question 2
 
-```{r, echo=FALSE}
+```{r}
 library(readr)
 emotion <- read_csv("/home/johnbjohn/Documents/git_repos/bacs-hw/hw9/study2Data.csv")
 sad <- emotion[emotion$Emotion_Condition == "Sadness",]
@@ -138,7 +138,13 @@ legend(
 sad_diff <- sad$RG_ACC - sad$BY_ACC
 neutral_diff <- neutral$RG_ACC - neutral$BY_ACC
 
-plot(density(sad_diff), lwd = 2, col="red", main = "RG_ACC & BY_ACC Difference")
+plot(
+  density(sad_diff), 
+  lwd = 2, 
+  col="red", 
+  main = "RG_ACC & BY_ACC Difference"
+)
+
 lines(density(neutral_diff), lwd = 2, col="black")
 legend(
   0.3, 
@@ -168,13 +174,19 @@ boxplot(
 
 y0s <- 1:4 - 0.4
 y1s <- 1:4 + 0.4
-means <- c(mean(sad$BY_ACC),mean(sad$RG_ACC),mean(neutral$BY_ACC),mean(neutral$RG_ACC))
+means <- c(
+    mean(sad$BY_ACC),
+    mean(sad$RG_ACC),
+    mean(neutral$BY_ACC),
+    mean(neutral$RG_ACC)
+  )
+
 segments(x0 = means, y0 = y0s, y1 = y1s, col="red", lwd = 2)
 
 abline(v = mean(accuracies), lwd = 2, col="purple", lty="dashed")
 ```
 
-From the graph above, we can see that the difference and the mean of each treatment don't differ that much.
+\textcolor{blue}{From the graph above, we can see that the difference and the mean of each treatment don't differ that much.}
 
 ## b. Run a t-test (traditional) to check if there is a significant difference in blue-yellow accuracy between sad and neutral participants at 95% confidence.
 
@@ -182,7 +194,7 @@ From the graph above, we can see that the difference and the mean of each treatm
 t.test(sad$BY_ACC, neutral$BY_ACC)
 ```
 
-Since the p-value is less than `0.05`, we can safely reject the null hypothesis and accept the alternative hypothesis. Thus, since the p-value is less than `0.05`, we can say that the result is statistically significant.
+\textcolor{blue}{Since the p-value is less than} `0.05`\textcolor{blue}{, we can safely reject the null hypothesis and accept the alternative hypothesis. Thus, since the p-value is less than} `0.05`\textcolor{blue}{, we can say that the result is statistically significant}.
 
 ## c. Run a t-test (traditional) to check if there is a significant difference in red-green accuracy between sad and neutral participants at 95% confidence.
 
@@ -190,7 +202,7 @@ Since the p-value is less than `0.05`, we can safely reject the null hypothesis 
 t.test(sad$RG_ACC, neutral$RG_ACC)
 ```
 
-Since the p-value is greater than `0.05`, we can not reject the null hypothesis and, thus, the result is not statistically significant.
+\textcolor{blue}{Since the p-value is greater than} `0.05`\textcolor{blue}{, we can not reject the null hypothesis and, thus, the result is not statistically significant.}
 
 ## d. (not graded) Do the above t-tests support a claim that there is an interaction between emotion and color axis? (i.e., does people’s accuracy of color perception along different color-axes depend on their emotion? Here, accuracy is an outcome variable, while color-axis and emotion are independent factors)
 
