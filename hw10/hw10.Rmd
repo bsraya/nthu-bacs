@@ -1,0 +1,78 @@
+---
+title: "BACS HW10"
+author: "Bijon Setyawan Raya"
+date: "4/28/2021"
+output: html_document
+---
+
+```{r, include=FALSE}
+library(data.table)
+library(dplyr)
+library(lsa)
+```
+
+
+```{r}
+table <- fread("/users/bijonsetyawan/Documents/Git/bacs-hw/hw10/piccollage_accounts_bundles.csv")
+matrix  <- as.matrix(table[, -1, with=FALSE])
+```
+
+### 1. Let’s make an automated recommendation system for the PicCollage mobile app.
+
+#### A. Let’s explore to see if any sticker bundles seem intuitively similar:
+
+**I. (recommended) Download PicCollage onto your mobile from the iOS/Android app store and a look at the style and content of various bundles in their Sticker Store: how many recommendations does each bundle have?**
+
+Most bundles have 48 recommendations, except for PicCollage 101 which only has 5 recommendations.
+
+**II. Find a single sticker bundle that is both in our limited data set and also in the app’s Sticker Store (e.g., “sweetmothersday”). Then, use your intuition to recommend (guess!) five other bundles in our dataset that might have similar usage patterns as this bundle.**
+
+#### B. Let's find similar bundles using geometric models of similarity:
+
+**I. Let’s create cosine similarity based recommendations for all bundles:**
+
+1. Create a matrix or data.frame of the top 5 recommendations for all bundles
+
+```{r}
+cos_sim <- cosine(matrix)
+diag(cos_sim) <- 100
+recommendation <- data.frame(stringsAsFactors = F)
+for(bundle in row.names(cos_sim)) {
+  recommendation <- 
+    rbind(
+      recommendation, 
+      names(
+        cos_sim[
+          bundle, 
+          order(cos_sim[bundle, ], decreasing = T)
+          ]
+      )[1:6], 
+      stringsAsFactors = F
+    )
+}
+rownames(recommendation) <- row.names(cos_sim)
+recommendation <- recommendation[, -1]
+colnames(recommendation) <- c("First", "Second", "Third", "Fourth", "Fifth")
+
+head(recommendation)
+```
+
+**ii. Let’s create correlation based recommendations.**
+
+1. Reuse the function you created above (don’t change it; don’t use the cor() function)
+
+2. But this time give the function an accounts-bundles matrix where each
+bundle (column) has already been mean-centered in advance.
+
+3. Now what are the top 5 recommendations for the bundle you chose to explore earlier?
+
+**iii. Let’s create adjusted-cosine based recommendations.**
+
+1. Reuse the function you created above (you should not have to change it)
+
+2. But this time give the function an accounts-bundles matrix where each
+account (row) has already been mean-centered in advance.
+
+3. What are the top 5 recommendations for the bundle you chose to explore earlier?
+
+### 2. Correlation is at the heart of many data analytic methods so let’s explore it further.
