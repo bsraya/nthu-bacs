@@ -1,6 +1,6 @@
 ---
 title: "BACS HW10"
-author: "Bijon Setyawan Raya"
+author: "109062710"
 date: "4/28/2021"
 output: html_document
 ---
@@ -14,7 +14,7 @@ library(lsa)
 
 ```{r}
 # table <- fread("/users/bijonsetyawan/Documents/Git/bacs-hw/hw10/piccollage_accounts_bundles.csv") # macos
-# table <- fread("/home/johnbjohn/Documents/git-repos/bacs-hw/hw10/piccollage_accounts_bundles.csv") # linux
+table <- fread("/home/johnbjohn/Documents/git_repos/bacs-hw/hw10/piccollage_accounts_bundles.csv") # linux
 matrix  <- as.matrix(table[, -1, with=FALSE])
 ```
 
@@ -26,7 +26,7 @@ matrix  <- as.matrix(table[, -1, with=FALSE])
 
 Most bundles have 48 recommendations, except for PicCollage 101 which only has 5 recommendations.
 
-**II. Find a single sticker bundle that is both in our limited data set and also in the app’s Sticker Store (e.g., “sweetmothersday”). Then, use your intuition to recommend (guess!) five other bundles in our dataset that might have similar usage patterns as this bundle.**
+**II. Find a single sticker bundle that is both in our limited data set and also in the app’s Sticker Store (e.g., “sweetmothersday”). Then, use your intuition to recommend (guess!) 5 other bundles in our data set that might have similar usage patterns as this bundle.**
 
 #### B. Let's find similar bundles using geometric models of similarity:
 
@@ -46,7 +46,7 @@ for(bundle in row.names(cosine_similarity_matrix)) {
         cosine_similarity_matrix[
           bundle, 
           order(cosine_similarity_matrix[bundle, ], decreasing = T)
-          ]
+        ]
       )[1:6], 
       stringsAsFactors = F
     )
@@ -63,6 +63,7 @@ head(recommendation_df, 5)
 ```{r}
 recommender <- function(matrix) {
   cosine_similarity_matrix <- cosine(matrix)
+  diag(cosine_similarity_matrix) <- 100
   recommendation_df <- data.frame(stringsAsFactors = FALSE)
   for(bundle in row.names(cosine_similarity_matrix)) {
     recommendation_df <- 
@@ -72,48 +73,167 @@ recommender <- function(matrix) {
         cosine_similarity_matrix[
           bundle, 
           order(cosine_similarity_matrix[bundle, ], decreasing = T)
-          ]
+        ]
       )[1:6], 
       stringsAsFactors = F
     )
   }
   rownames(recommendation_df) <- row.names(cosine_similarity_matrix)
-  recommendation <- recommendation_df[, -1]
+  recommendation_df <- recommendation_df[, -1]
   colnames(recommendation_df) <- 
     c("First", "Second", "Third", "Fourth", "Fifth")
   
   return(head(recommendation_df,5))
 }
 
-recommender(matrix)
+recommendation <- recommender(matrix)
 ```
 
-**ii. Let’s create correlation based recommendations.**
+**II. Let’s create correlation based recommendations.**
 
 1. Reuse the function you created above (do not change it; do not use the cor() function)
 
 ```{r}
 means <- apply(matrix, 2, mean)
-raw_matrix <- t(replicate(nrow(matrix), means))
-mean_centered_matrix <- matrix - raw_matrix
+col_mean_matrix <- t(replicate(nrow(matrix), means))
+col_mean_centered_matrix <- matrix - col_mean_matrix
 ```
 
 2. But this time give the function an accounts-bundles matrix where each bundle (column) has already been mean-centered in advance.
 
 ```{r}
-mean_centered_recommendation <- recommender(mean_centered_matrix)
-head(mean_centered_recommendation, 4)
+col_mean_centered_recommendation <- recommender(col_mean_centered_matrix)
+head(col_mean_centered_recommendation, 5)
 ```
 
 3. Now what are the top 5 recommendations for the bundle you chose to explore earlier?
 
-**iii. Let’s create adjusted-cosine based recommendations.**
+```{r}
+col_mean_centered_recommendation["Maroon5V",]
+```
+
+**III. Let’s create adjusted-cosine based recommendations.**
 
 1. Reuse the function you created above (you should not have to change it)
 
-2. But this time give the function an accounts-bundles matrix where each
-account (row) has already been mean-centered in advance.
+```{r}
+means <- apply(matrix, 1, mean)
+row_mean_matrix <- replicate(ncol(matrix), means)
+row_mean_centered_matrix <- matrix - row_mean_matrix
+```
+
+2. But this time give the function an accounts-bundles matrix where each account (row) has already been mean-centered in advance.
+
+```{r}
+row_mean_centered_recommendation <- recommender(row_mean_centered_matrix)
+head(row_mean_centered_recommendation, 5)
+```
 
 3. What are the top 5 recommendations for the bundle you chose to explore earlier?
 
+```{r}
+row_mean_centered_recommendation["Maroon5V",]
+```
+
 ### 2. Correlation is at the heart of many data analytic methods so let’s explore it further.
+
+#### a. Create a horizontal set of random points, with a relatively narrow but flat distribution.
+
+1. What raw slope of x and y would you generally expect?
+
+Close to 0.
+
+2. What is the correlation of x and y that you would generally expect?
+
+Since it's only shows a straight line, meaning that there is no correlation between x and y. Thus, the correlation value is always close to 0.
+
+#### b. Create a completely random set of points to fill the entire plotting area, along both x-axis and y-axis
+
+1. What raw slope of x and y would you generally expect?
+
+It's similar to scenario (a) where all data points are scattered across the whole place, thus they offset each other. CLearly, the raw slope is close to 0.
+
+2. What is the correlation of x and y that you would generally expect?
+
+Since the data points are all over the place, and they offset each other. Thus, the correlation value will always close to 0.
+
+#### c. Create a diagonal set of random points trending upwards at 45 degrees
+
+1. What raw slope of x and y would you generally expect? (note that x, y have the same scale)
+
+As x increases, y also shows an increasing trend. Thus, the raw slope will always close to positive 1.
+
+2. What is the correlation of x and y that you would generally expect?
+
+Similarly, as x increases, y also shows an increasing trend. Thus, the correlation value will always close to positive 1.
+
+#### d. Create a diagonal set of random trending downwards at 45 degrees
+
+1. What raw slope of x and y would you generally expect? (note that x, y have the same scale)
+
+As x decreases, y also shows an decreasing trend. Thus, the raw slope will always close to negative 1.
+
+2. What is the correlation of x and y that you would generally expect?
+
+As x decreases, y also shows an decreasing trend. Thus, the raw slope will always close to negative 1.
+
+#### e. Apart from any of the above scenarios, look for another pattern of data points with no correlation (r ≈ 0).
+
+![r ≈ 0](/home/johnbjohn/Documents/git_repos/bacs-hw/hw10/r_equal_zero.png)
+
+#### f. Apart from any of the above scenarios, look for another pattern of data points with perfect correlation (r ≈ 1).
+
+![r ≈ 1](/home/johnbjohn/Documents/git_repos/bacs-hw/hw10/r_equal_one.png)
+
+#### g. Let’s see how correlation relates to simple regression, by simulating any linear relationship you wish:
+
+1. Record data points
+
+```{r}
+data_points <- 
+  data.frame(
+    x = c(
+      -1.786964, 1.669799, 7.175015, 17.289249, 
+      21.770239, 27.787568, 36.365463, 47.759979
+    ),
+    y = c(
+      -1.748132, 7.308126, 6.628907, 14.326727, 
+      29.722366, 41.948315, 39.457844, 46.476445
+    )
+  )
+```
+
+2. Use the `lm()` function to estimate the regression intercept and slope of pts to ensure they are same as the values reported in the simulation plot: `summary( lm( pts$y ~ pts$x ))`
+
+![X Y Intercept](/home/johnbjohn/Documents/git_repos/bacs-hw/hw10/for_g.png)
+
+```{r}
+summary( lm(data_points$y ~ data_points$x))
+```
+
+Yes, the regression intercept and slope of `data_points` are the same.
+
+3. Estimate the correlation of x and y to see it is the same as reported in the plot: `cor(pts)`
+
+```{r}
+cor(data_points)
+```
+
+Yes, the correlation value of x and y is the same as shown in the graph.
+
+4. Now, re-estimate the regression using standardized values of both `x` and `y` from `data_points`
+
+```{r}
+standardized_data_points <- data.frame(x = scale(data_points$x), y = scale(data_points$y))
+summary( lm(standardized_data_points$y ~ standardized_data_points$x))
+```
+
+```{r}
+cor(standardized_data_points)
+```
+
+Even though `(Intercept)` and `standardized_pts$x` values in the summary have changed, the correlation of x and y remain the same shown in the correlation table above.
+
+5. What is the relationship between correlation and the standardized simple-regression estimates?
+
+The relationship between correlation and the standardized simple-regression stays the same.
