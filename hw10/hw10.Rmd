@@ -13,7 +13,8 @@ library(lsa)
 
 
 ```{r}
-table <- fread("/users/bijonsetyawan/Documents/Git/bacs-hw/hw10/piccollage_accounts_bundles.csv")
+# table <- fread("/users/bijonsetyawan/Documents/Git/bacs-hw/hw10/piccollage_accounts_bundles.csv") # macos
+# table <- fread("/home/johnbjohn/Documents/git-repos/bacs-hw/hw10/piccollage_accounts_bundles.csv") # linux
 matrix  <- as.matrix(table[, -1, with=FALSE])
 ```
 
@@ -34,35 +35,75 @@ Most bundles have 48 recommendations, except for PicCollage 101 which only has 5
 1. Create a matrix or data.frame of the top 5 recommendations for all bundles
 
 ```{r}
-cos_sim <- cosine(matrix)
-diag(cos_sim) <- 100
-recommendation <- data.frame(stringsAsFactors = F)
-for(bundle in row.names(cos_sim)) {
-  recommendation <- 
+cosine_similarity_matrix <- cosine(matrix)
+diag(cosine_similarity_matrix) <- 100
+recommendation_df <- data.frame(stringsAsFactors = F)
+for(bundle in row.names(cosine_similarity_matrix)) {
+  recommendation_df <- 
     rbind(
-      recommendation, 
+      recommendation_df, 
       names(
-        cos_sim[
+        cosine_similarity_matrix[
           bundle, 
-          order(cos_sim[bundle, ], decreasing = T)
+          order(cosine_similarity_matrix[bundle, ], decreasing = T)
           ]
       )[1:6], 
       stringsAsFactors = F
     )
 }
-rownames(recommendation) <- row.names(cos_sim)
-recommendation <- recommendation[, -1]
-colnames(recommendation) <- c("First", "Second", "Third", "Fourth", "Fifth")
+rownames(recommendation_df) <- row.names(cosine_similarity_matrix)
+recommendation_df <- recommendation_df[, -1]
+colnames(recommendation_df) <- c("First", "Second", "Third", "Fourth", "Fifth")
 
-head(recommendation)
+head(recommendation_df, 5)
+```
+
+2. Create a new function that automates the above functionality: it should take an accounts-bundles matrix as a parameter, and return a data object with the top 5 recommendations for each bundle in our data set.
+
+```{r}
+recommender <- function(matrix) {
+  cosine_similarity_matrix <- cosine(matrix)
+  recommendation_df <- data.frame(stringsAsFactors = FALSE)
+  for(bundle in row.names(cosine_similarity_matrix)) {
+    recommendation_df <- 
+    rbind(
+      recommendation_df, 
+      names(
+        cosine_similarity_matrix[
+          bundle, 
+          order(cosine_similarity_matrix[bundle, ], decreasing = T)
+          ]
+      )[1:6], 
+      stringsAsFactors = F
+    )
+  }
+  rownames(recommendation_df) <- row.names(cosine_similarity_matrix)
+  recommendation <- recommendation_df[, -1]
+  colnames(recommendation_df) <- 
+    c("First", "Second", "Third", "Fourth", "Fifth")
+  
+  return(head(recommendation_df,5))
+}
+
+recommender(matrix)
 ```
 
 **ii. Let’s create correlation based recommendations.**
 
-1. Reuse the function you created above (don’t change it; don’t use the cor() function)
+1. Reuse the function you created above (do not change it; do not use the cor() function)
 
-2. But this time give the function an accounts-bundles matrix where each
-bundle (column) has already been mean-centered in advance.
+```{r}
+means <- apply(matrix, 2, mean)
+raw_matrix <- t(replicate(nrow(matrix), means))
+mean_centered_matrix <- matrix - raw_matrix
+```
+
+2. But this time give the function an accounts-bundles matrix where each bundle (column) has already been mean-centered in advance.
+
+```{r}
+mean_centered_recommendation <- recommender(mean_centered_matrix)
+head(mean_centered_recommendation, 4)
+```
 
 3. Now what are the top 5 recommendations for the bundle you chose to explore earlier?
 
