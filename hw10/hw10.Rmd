@@ -24,9 +24,16 @@ matrix  <- as.matrix(table[, -1, with=FALSE])
 
 **I. (recommended) Download PicCollage onto your mobile from the iOS/Android app store and a look at the style and content of various bundles in their Sticker Store: how many recommendations does each bundle have?**
 
-Most bundles have 48 recommendations, except for PicCollage 101 which only has 5 recommendations.
+For example for `supercute`, there are 31 recommendations of stickers.
 
 **II. Find a single sticker bundle that is both in our limited data set and also in the app’s Sticker Store (e.g., “sweetmothersday”). Then, use your intuition to recommend (guess!) 5 other bundles in our data set that might have similar usage patterns as this bundle.**
+
+For this case, I will choose `xmasquotes`. Based on my estimation, `xmasquotes` will be related to:
+1. `WinterWonderland`
+2. `Xmas2012StickerPack`
+3. `snowflakes`
+4. `chicchristmas`
+5. `snowflakeee`
 
 #### B. Let's find similar bundles using geometric models of similarity:
 
@@ -83,10 +90,11 @@ recommender <- function(matrix) {
   colnames(recommendation_df) <- 
     c("First", "Second", "Third", "Fourth", "Fifth")
   
-  return(head(recommendation_df,5))
+  return(recommendation_df)
 }
 
 recommendation <- recommender(matrix)
+head(recommendation, 5)
 ```
 
 **II. Let’s create correlation based recommendations.**
@@ -109,7 +117,7 @@ head(col_mean_centered_recommendation, 5)
 3. Now what are the top 5 recommendations for the bundle you chose to explore earlier?
 
 ```{r}
-col_mean_centered_recommendation["Maroon5V",]
+col_mean_centered_recommendation["xmasquotes",]
 ```
 
 **III. Let’s create adjusted-cosine based recommendations.**
@@ -132,7 +140,7 @@ head(row_mean_centered_recommendation, 5)
 3. What are the top 5 recommendations for the bundle you chose to explore earlier?
 
 ```{r}
-row_mean_centered_recommendation["Maroon5V",]
+row_mean_centered_recommendation["xmasquotes",]
 ```
 
 ### 2. Correlation is at the heart of many data analytic methods so let’s explore it further.
