@@ -12,9 +12,9 @@ library(ISLR)
 
 ## Question 1
 
-#### a. Let’s dig into what regression is doing to compute model fit:
+#### a. Let’s dig into what regression is doing to compute model fit
 
-i. Plot Scenario 2, storing the returned points: `pts <- interactive_regression_rsq()`
+##### i. Plot Scenario 2, storing the returned points
 ```{r}
 pts <- data.frame(
   x = c(
@@ -30,23 +30,23 @@ pts <- data.frame(
 )
 ```
 
-ii. Run a linear model of x and y points to confirm the R2 value reported by the simulation: `regr <- lm(y ~ x, data=pts) summary(regr)`
+##### ii. Run a linear model of x and y points to confirm the R2 value reported by the simulation
 
 ```{r}
 regr <- lm(y ~ x, data = pts)
 summary(regr)
 ```
 
-iii. Add line segments to the plot to show the regression residuals (errors) as follows:
+#### iii. Add line segments to the plot 
 
-1. Get values of $\hat{y}$( regression line’s estimates of y, given x): `y_hat <- regr$fitted.values`
+1. Get values of $\hat{y}$ (estimated values)
 
 ```{r}
 y_hat <- regr$fitted.values
 y_hat
 ```
 
-2. Add segments: `segments(pts$x, pts$y, pts$x, y_hat, col="red", lty="dotted")`
+2. Add segments
 
 ```{r}
 plot(pts)
@@ -54,7 +54,7 @@ abline(lm(pts$y ~ pts$x))
 segments(pts$x, pts$y, pts$x, y_hat, col="red", lty="dotted")
 ```
 
-iv. Use only `pts$x, pts$y, y_hat and mean(pts$y)` to compute SSE, SSR and SST, and verify $R^2$
+##### iv. Use only `pts$x, pts$y, y_hat and mean(pts$y)` to compute SSE, SSR and SST, and verify $R^2$
 
 ```{r}
 sse <- sum((fitted(regr) - mean(pts$y))^2)
@@ -63,9 +63,25 @@ sst <- sse + ssr
 r2 <- 1 - (ssr / sst)
 ```
 
-#### b. Comparing scenarios 1 and 2, which do we expect to have a stronger R2 ?
+#### b. Comparing scenarios 1 and 2, which do we expect to have a stronger $R^2$?
 
-#### c. Comparing scenarios 3 and 4, which do we expect to have a stronger R2 ?
+<p style="color: blue;">
+For the first scenario, $R^2$ will be very close to $+1$ since most of the data points are sitting at or close to the increasing regression line. However, the second scenario's $R^2$ value won't be as high as the first scenario's, but it still will be near $1$.
+</p>
+
+<p style="color: red;">
+In this case, the first scenario will have a stronger $R^2$.
+</p>
+
+#### c. Comparing scenarios 3 and 4, which do we expect to have a stronger $R^2$?
+
+<p style="color: blue;">
+In the third scenario, the $R^2$ will be close to $-1$ since most of the data points are sitting on or close to the decreasing regression line. However, the fourth scenario's $R^2$ value won't be as high as the third scenario's, but it still will be near $-1$.
+</p>
+
+<p style="color: red;">
+In this case, the third scenario will have a stronger $R^2$.
+</P
 
 #### d. Comparing scenarios 1 and 2, which do we expect has bigger/smaller SSE, SSR, and SST?
 
@@ -82,31 +98,32 @@ head(auto)
 summary(auto)
 ```
 
-#### a. Let’s first try exploring this data and problem:
+#### a. Let’s first try exploring this data and problem
 
-i. Visualize the data in any way you feel relevant (report only relevant/interesting ones)
+##### i. Visualize the data in any way you feel relevant
 
-ii. Report a correlation table of all variables, rounding to two decimal places (in the cor() function, set use="pairwise.complete.obs" to handle missing values)
+##### ii. Report a correlation table of all variables, rounding to two decimal places
 
-iii. From the visualizations and correlations, which variables seem to relate to mpg?
+##### iii. From the visualizations and correlations, which variables seem to relate to mpg?
 
-iv. Which relationships might not be linear? (do not worry about linearity for rest of this HW)
+##### iv. Which relationships might not be linear? 
 
-v. Are there any pairs of independent variables that are highly correlated r > 0.7?
+##### v. Are there any pairs of independent variables that are highly correlated r > 0.7?
 
-#### b. Let’s create a linear regression model where mpg is dependent upon all other suitable variables (Note: origin is categorical with three levels, so use factor(origin) in lm(...) to split it into two dummy variables)
+#### b. Let’s create a linear regression model where mpg is dependent upon all other suitable variables 
 
-i. Which independent variables have a ‘significant’ relationship with mpg at 1% significance?
+##### i. Which independent variables have a ‘significant’ relationship with mpg at 1% significance?
 
-ii. Looking at the coefficients, is it possible to determine which independent variables are the most effective at increasing mpg? If so, which ones, and if not, why not? (hint: units!)
+##### ii. Looking at the coefficients, is it possible to determine which independent variables are the most effective at increasing mpg? If so, which ones, and if not, why not? (hint: units!)
 
 #### c. Let’s try to resolve some of the issues with our regression model above.
 
-i. Create fully standardized regression results: are these slopes easier to compare? (note: consider if you should standardize origin)
+##### i. Create fully standardized regression results: are these slopes easier to compare? (note: consider if you should standardize origin)
 
-ii. Regress mpg over each non significant independent variable, individually. Which ones become significant when we regress mpg over them individually?
+##### ii. Regress mpg over each non significant independent variable, individually. Which ones become significant when we regress mpg over them individually?
 
-iii. Plot the density of the residuals: are they normally distributed and centered around zero? (get the residuals of a fitted linear model, e.g. `regr <- lm(...)`, using `regr$residuals`
+##### iii. Plot the density of the residuals: are they normally distributed and centered around zero? (get the residuals of a fitted linear model, e.g. `regr <- lm(...)`, using `regr$residuals`
 
 ## Reference:
 [R SQUARED: SST, SSE AND SSR](https://rinterested.github.io/statistics/rsquare.html)
+[The Correlation Coefficient (r)](https://sphweb.bumc.bu.edu/otlt/MPH-Modules/PH717-QuantCore/PH717-Module9-Correlation-Regression/PH717-Module9-Correlation-Regression4.html)
