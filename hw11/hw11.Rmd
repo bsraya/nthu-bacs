@@ -1,8 +1,10 @@
 ---
 title: "BACS HW11"
-author: "109062710"
+author: '109062710'
 date: "5/5/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r, include=FALSE}
@@ -90,18 +92,10 @@ In this case, the third scenario will have a stronger $R^2$, but in a decreasing
 
 ## Question 2
 
-```{r}
-auto <- Auto
-head(auto)
-```
-
-```{r}
-summary(auto)
-```
-
 #### a. Let’s first try exploring this data and problem
 
 ```{r}
+auto <- Auto
 origins <- c("USA", "Europe", "Japan")
 auto$origin <- factor(auto$origin, labels = origins)
 ```
@@ -110,11 +104,57 @@ auto$origin <- factor(auto$origin, labels = origins)
 ##### i. Visualize the data in any way you feel relevant
 
 ```{r}
-qplot(auto$origin)
+qplot(
+  auto$origin,
+  xlab = "Origin", 
+  ylab = "Count", 
+  main = "Distribution of Cars' Origin"
+)
+```
+
+```{r}
+qplot(auto$cylinders, xlab = 'Cylinders', ylab = 'Count', 
+      main='Frequency Histogram: Number of Cylinders', binwidth = 1)
+```
+
+```{r}
+qplot(auto$horsepower, xlab = 'Horsepower', ylab = 'Count', binwidth = 10,
+      main='Frequency Histogram: Horsepower')
+```
+
+```{r}
+ggplot(data = auto, aes(x = weight, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  xlab('MPG') +
+  ylab('Weight') +
+  ggtitle('MPG vs. Weight: Entire Sample')
 ```
 
 
 ##### ii. Report a correlation table of all variables, rounding to two decimal places
+
+```{r}
+library(corrr)
+variables <- 
+  auto[, 
+       c("mpg", 
+         "cylinders", 
+         "displacement", 
+         "horsepower", 
+         "weight", 
+         "acceleration")
+  ]
+variables %>% 
+  correlate() %>% 
+  network_plot(min_cor = 0.7, colors = c("red", "green"), legend = TRUE)
+```
+
+```{r}
+library("PerformanceAnalytics")
+
+chart.Correlation(variables, histogram=TRUE, pch=19)
+```
 
 ##### iii. From the visualizations and correlations, which variables seem to relate to mpg?
 
@@ -139,4 +179,3 @@ qplot(auto$origin)
 ## Reference:
 [R SQUARED: SST, SSE AND SSR](https://rinterested.github.io/statistics/rsquare.html)
 [The Correlation Coefficient (r)](https://sphweb.bumc.bu.edu/otlt/MPH-Modules/PH717-QuantCore/PH717-Module9-Correlation-Regression/PH717-Module9-Correlation-Regression4.html)
-https://www.rpubs.com/dksmith01/cars
