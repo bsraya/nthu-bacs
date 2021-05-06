@@ -2,9 +2,7 @@
 title: "BACS HW11"
 author: '109062710'
 date: "5/5/2021"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r, include=FALSE}
@@ -142,8 +140,7 @@ variables <-
          "cylinders", 
          "displacement", 
          "horsepower", 
-         "weight", 
-         "acceleration")
+         "weight")
   ]
 variables %>% 
   correlate() %>% 
@@ -158,24 +155,52 @@ chart.Correlation(variables, histogram=TRUE, pch=19)
 
 ##### iii. From the visualizations and correlations, which variables seem to relate to mpg?
 
-##### iv. Which relationships might not be linear? 
+From the correlation graph, seems like `cylinders`, `displacement`, `horsepower`, and `weight` relare to `mpg`. However, they are negatively correlated. Besides, `weight` is the only variable with the correlation value closest $-1$ meaning it's the most negatively correlated variable against `mpg`.
 
-##### v. Are there any pairs of independent variables that are highly correlated `r > 0.7`?
+##### iv. Which relationships might not be linear?
+
+The relationships between `mpg` with `displacement`, `horsepower` and `weight` are not linear, indicated by the moon-shaped curve that the data points follow. Refer to the graph in (iii)
+
+##### v. Are there any pairs of independent variables that are highly correlated r > 0.7?
+
+Yes, there are `cylinders`, `displacement`, `horsepower` and `weight`. The values can be seen in (ii) and (iii) answers.
 
 #### b. Let’s create a linear regression model where mpg is dependent upon all other suitable variables 
 
+```{r}
+simple_regr <- lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + factor(origin), data=auto)
+summary(simple_regr)
+```
+
 ##### i. Which independent variables have a ‘significant’ relationship with mpg at 1% significance?
 
-##### ii. Looking at the coefficients, is it possible to determine which independent variables are the most effective at increasing mpg? If so, which ones, and if not, why not? (hint: units!)
+There are two independent variables that have significant relationships with mpg at 1% significance, namely `cylinders` and `horsepower`.
+
+##### ii. Looking at the coefficients, is it possible to determine which independent variables are the most effective at increasing mpg? If so, which ones, and if not, why not? 
+
+We can't determine which and which are effective since all the independent variables are not standardized.
 
 #### c. Let’s try to resolve some of the issues with our regression model above.
 
-##### i. Create fully standardized regression results: are these slopes easier to compare? (note: consider if you should standardize origin)
+##### i. Create fully standardized regression results: are these slopes easier to compare? 
+
+```{r}
+auto_sd <- cbind(scale(auto[1:7]), auto$origin)
+colnames(auto_sd)[8] <- "origin"
+auto_sd <- as.data.frame(auto_sd)
+auto_sd$origin <- factor(auto$origin, labels = origins)
+simple_regr_std <- lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + factor(origin), data=auto_sd)
+summary(simple_regr_std)
+```
 
 ##### ii. Regress mpg over each non significant independent variable, individually. Which ones become significant when we regress mpg over them individually?
 
-##### iii. Plot the density of the residuals: are they normally distributed and centered around zero? (get the residuals of a fitted linear model, e.g. `regr <- lm(...)`, using `regr$residuals`
+##### iii. Plot the density of the residuals: are they normally distributed and centered around zero?
 
 ## Reference:
+
 [R SQUARED: SST, SSE AND SSR](https://rinterested.github.io/statistics/rsquare.html)
+
 [The Correlation Coefficient (r)](https://sphweb.bumc.bu.edu/otlt/MPH-Modules/PH717-QuantCore/PH717-Module9-Correlation-Regression/PH717-Module9-Correlation-Regression4.html)
+
+[Significance Codes in R](https://www.statology.org/significance-codes-in-r/)
