@@ -8,6 +8,7 @@ output: html_document
 ```{r, include=FALSE}
 library(dplyr)
 library(ISLR)
+library(tidyverse)
 ```
 
 ## Question 1
@@ -80,7 +81,7 @@ In the third scenario, the $R^2$ will be close to $-1$ since most of the data po
 </p>
 
 <p style="color: red;">
-In this case, the third scenario will have a stronger $R^2$.
+In this case, the third scenario will have a stronger $R^2$, but in a decreasing manner.
 </P
 
 #### d. Comparing scenarios 1 and 2, which do we expect has bigger/smaller SSE, SSR, and SST?
@@ -100,7 +101,18 @@ summary(auto)
 
 #### a. Let’s first try exploring this data and problem
 
+```{r}
+origins <- c("USA", "Europe", "Japan")
+auto$origin <- factor(auto$origin, labels = origins)
+```
+
+
 ##### i. Visualize the data in any way you feel relevant
+
+```{r}
+qplot(auto$origin)
+```
+
 
 ##### ii. Report a correlation table of all variables, rounding to two decimal places
 
@@ -108,7 +120,7 @@ summary(auto)
 
 ##### iv. Which relationships might not be linear? 
 
-##### v. Are there any pairs of independent variables that are highly correlated r > 0.7?
+##### v. Are there any pairs of independent variables that are highly correlated `r > 0.7`?
 
 #### b. Let’s create a linear regression model where mpg is dependent upon all other suitable variables 
 
@@ -127,3 +139,4 @@ summary(auto)
 ## Reference:
 [R SQUARED: SST, SSE AND SSR](https://rinterested.github.io/statistics/rsquare.html)
 [The Correlation Coefficient (r)](https://sphweb.bumc.bu.edu/otlt/MPH-Modules/PH717-QuantCore/PH717-Module9-Correlation-Regression/PH717-Module9-Correlation-Regression4.html)
+https://www.rpubs.com/dksmith01/cars
