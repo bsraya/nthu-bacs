@@ -9,6 +9,8 @@ output: html_document
 library(dplyr)
 library(ISLR)
 library(tidyverse)
+library(corrr)
+library(PerformanceAnalytics)
 ```
 
 ## Question 1
@@ -82,11 +84,27 @@ In the third scenario, the $R^2$ will be close to $-1$ since most of the data po
 
 <p style="color: red;">
 In this case, the third scenario will have a stronger $R^2$, but in a decreasing manner.
-</P
+</p>
 
 #### d. Comparing scenarios 1 and 2, which do we expect has bigger/smaller SSE, SSR, and SST?
 
+<p style="color: red;">
+In first scenario, we expect smaller SSE & SST. Clearly, SST value for the first scenario will be also small in this case. 
+</p>
+
+<p style="color: red;">
+In the second scenario, SSE will be bigger since all the data points are quite far from the regression line. However, the distance from the mean value might or might not be close to the regression line. Clearly, the second scenario will have bigger SST because of SSE, regardless SSR.
+</p>
+
 #### e. Comparing scenarios 3 and 4, which do we expect has bigger/smaller SSE, SSR, and SST?
+
+<p style="color: red;">
+The third scenario is quite similar to the first scenario since most data points are sitting quite close to the regression line. Thus, SST will be smaller compared to the fourth scenario due to small SSE and SSR values.
+</p>
+
+<p style="color: red;">
+The fourth scenario is also similar to the second scenario where SSE is big since most data points are sitting far from the regression line. Clearly, SST value will be bigger compared to the third scenario due to SSE, regardless SSR value.
+</p>
 
 ## Question 2
 
@@ -133,7 +151,6 @@ ggplot(data = auto, aes(x = weight, y = mpg)) +
 ##### ii. Report a correlation table of all variables, rounding to two decimal places
 
 ```{r}
-library(corrr)
 variables <- 
   auto[, 
        c("mpg", 
@@ -148,8 +165,6 @@ variables %>%
 ```
 
 ```{r}
-library("PerformanceAnalytics")
-
 chart.Correlation(variables, histogram=TRUE, pch=19)
 ```
 
