@@ -1,0 +1,146 @@
+---
+title: "BACS HW12"
+author: "Bijon Setyawan Raya"
+date: "5/12/2021"
+output: pdf_document
+---
+
+```{r, include=FALSE}
+library(ISLR)
+```
+
+```{r}
+cars <- Auto
+head(cars)
+```
+
+# Question 1
+
+```{r}
+cars_log <- with(cars, data.frame(log(mpg), log(cylinders), log(displacement),
+log(horsepower), log(weight), log(acceleration), year, origin))
+
+names(cars_log) <- names(cars)[1:8] # rename the columns
+head(cars_log)
+```
+
+## a. Run a new regression on the cars_log dataset, with mpg.log. dependent on all other variables
+
+```{r}
+cars_regr <- 
+  lm(
+    mpg ~ 
+      cylinders + 
+      displacement + 
+      horsepower + 
+      weight + 
+      acceleration + 
+      year + 
+      factor(origin), 
+    data = cars_log
+  )
+summary(cars_regr)
+```
+
+### i. Which log-transformed factors have a significant effect on log.mpg. at 10% significance?
+
+`horsepower`, `weight`, `acceleration`, `year`, `factor(origin)2`, and `factor(origin)3`.
+
+### ii. Do some new factors now have effects on mpg, and why might this be?
+
+`acceleration` and `horsepower` suddenly became significant in this case, which they weren't in the previous homework.
+
+### iii. Which factors still have insignificant or opposite (from correlation) effects on mpg? Why might this be?
+
+Only `cylinders`. The more cylinders cars have, the higher the gas consumption.
+
+## b. Let’s take a closer look at weight, because it seems to be a major explanation of mpg
+
+### i. Create a regression (call it regr_wt) of mpg on weight from the original cars dataset
+
+```{r}
+regr_wt <- lm(mpg ~ weight, data = Auto)
+```
+
+### ii. Create a regression (call it regr_wt_log) of log.mpg. on log.weight. from cars_log
+
+```{r}
+regr_wt_log <- lm(mpg ~ weight, data = cars_log)
+```
+
+### iii. visualize the residuals of both regression models
+
+1. density plots of residuals
+```{r}
+plot(
+  density(resid(regr_wt)), 
+  main = "Residual Distribution MPG ~ Weight", 
+  lwd = 2, 
+  col = "red", 
+  xlab = "Residual"
+)
+```
+
+```{r}
+plot(
+  density(resid(regr_wt_log)), 
+  main = "Residual Distribution MPG ~ Weight (log)", 
+  lwd = 2, 
+  col = "blue", 
+  xlab = "Residual (log)"
+)
+```
+
+2. scatterplot of log.weight. vs. residuals
+
+```{r}
+library(ggplot2)
+ggplot(
+  cars_log, 
+  aes(
+    x = weight, 
+    y = lm(mpg ~ weight)$residual)
+  ) +
+  geom_point() +
+  xlab("Weight (log)") +
+  ylab("MPG ~ Weight Residual (log)")
+```
+
+## c. Let’s examine the 95% confidence interval of the slope of log.weight. vs. log.mpg.
+
+```{r}
+boot_intercept <- function(dataset) {
+  # pick data points' indexes
+  random_samples <- sample(1:nrow(dataset), replace = TRUE)
+  
+  slopes <- lm(mpg ~ weight, data = dataset[random_samples,])
+  abline(slopes, lwd = 1, col="grey")
+  return(slopes$coefficients)
+}
+```
+
+
+```{r}
+plot(
+  cars_log$weight, 
+  cars_log$mpg, 
+  col = "steelblue", 
+  pch = 19, 
+  xlab = "mpg (log)",
+  ylab = "weight (log)",
+  main = "95% CI of Intercept Value of MPG ~ Weight"
+)
+
+regression_coeffs <- replicate(500, boot_intercept(cars_log))
+abline(a = mean(regression_coeffs["(Intercept)",]), b = mean(regression_coeffs["weight",]))
+```
+
+```{r}
+mpg_weight_regr <- lm(mpg ~ weight, data = cars_log)
+mpg_weight_regr
+```
+
+```{r}
+t.test(regression_coeffs["(Intercept)",], mu = 11.515)
+```
+
