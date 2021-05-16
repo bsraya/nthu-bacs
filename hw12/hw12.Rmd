@@ -40,52 +40,59 @@ cars_log_regr <-
 summary(cars_log_regr)
 ```
 
-i. Which log-transformed factors have a significant effect on log.mpg. at 10% significance?
+### i. Which log-transformed factors have a significant effect on log.mpg. at 10% significance?
 
+<p style="color:red;">
 `horsepower`, `weight`, `acceleration`, `year`, `factor(origin)2`, and `factor(origin)3`.
+</p>
 
-ii. Do some new factors now have effects on mpg, and why might this be?
+### ii. Do some new factors now have effects on mpg, and why might this be?
 
+<p style="color:red;">
 `acceleration` and `horsepower` suddenly became significant in this case, which they weren't in the previous homework.
+</p>
 
-iii. Which factors still have insignificant or opposite (from correlation) effects on mpg? Why might this be?
+### iii. Which factors still have insignificant or opposite (from correlation) effects on mpg? Why might this be?
 
+<p style="color:red;">
 Only `cylinders`. The more cylinders cars have, the higher the gas consumption.
+</p>
 
 ## b. Let’s take a closer look at weight, because it seems to be a major explanation of mpg
 
-i. Create a regression (call it regr_wt) of mpg on weight from the original cars data set
+### i. Create a regression (call it regr_wt) of mpg on weight from the original cars data set
 
 ```{r}
 regr_wt <- lm(mpg ~ weight, data = Auto)
 ```
 
-ii. Create a regression (call it regr_wt_log) of log.mpg. on log.weight. from cars_log
+### ii. Create a regression (call it regr_wt_log) of log.mpg. on log.weight. from cars_log
 
 ```{r}
 regr_wt_log <- lm(mpg ~ weight, data = cars_log)
 ```
 
-iii. visualize the residuals of both regression models
+### iii. visualize the residuals of both regression models
 
 1. density plots of residuals
+
 ```{r}
 plot(
   density(resid(regr_wt)), 
   main = "Residual Distribution MPG ~ Weight", 
   lwd = 2, 
   col = "red", 
-  xlab = "Residual"
+  xlab = "Residual",
+  ylim = c(0, 3)
 )
-```
-
-```{r}
-plot(
-  density(resid(regr_wt_log)), 
-  main = "Residual Distribution MPG ~ Weight (log)", 
-  lwd = 2, 
-  col = "blue", 
-  xlab = "Residual (log)"
+lines(density(resid(regr_wt_log)), lwd = 2, col = "blue")
+legend(
+  7,
+  3,
+  c("non-standardized", "standardized"),
+  col = c("red", "blue"),
+  lwd = c(2,2),
+  lty = c("solid", "solid")
 )
 ```
 
@@ -95,7 +102,7 @@ plot(
 plot(
   cars_log$weight, 
   regr_wt_log$residuals, 
-  col = "steelblue", 
+  col = "red", 
   pch = 19, 
   xlab = "mpg (log)",
   ylab = "residual",
@@ -103,23 +110,25 @@ plot(
 )
 ```
 
-iv. Which regression produces better residuals for the assumptions of regression?
+### iv. Which regression produces better residuals for the assumptions of regression?
 
 ```{r}
 plot(
   Auto$weight, 
   regr_wt$residuals, 
-  col = "steelblue", 
-  pch = 19, 
+  col = "red", 
+  pch = 20, 
   xlab = "mpg (log)",
   ylab = "weight (log)",
   main = "Non-standardized cars' residual"
 )
 ```
 
+<p style="color:red;">
 Looking at this graph and the previous graph (the standardized one), we can tell that most data points are centralized in the middle. Thus, the standardized one produces better residuals.
+</p>
 
-v. How would you interpret the slope of log.weight. vs log.mpg. in simple words?
+### v. How would you interpret the slope of log.weight. vs log.mpg. in simple words?
 
 ```{r}
 plot(
@@ -131,20 +140,29 @@ plot(
   ylab = "weight (log)",
   main = "Linear model of weight against mpg"
 )
-abline(a = regr_wt_log$coefficients["(Intercept)"], b = regr_wt_log$coefficients["weight"], col = "red")
+
+abline(
+  a = regr_wt_log$coefficients["(Intercept)"], 
+  b = regr_wt_log$coefficients["weight"], 
+  col = "red"
+)
 ```
 
+<p style="color:red;">
 Clearly, the lighter the cars, the further the distance can be covered per gallon.
+</p>
 
 ```{r}
 lm(cars_log$mpg ~ cars_log$weight)
 ```
 
+<p style="color:red;">
 The summary above also means that 1% change in mpg leads to 1% decrease in weight.
+</p>
 
 ## c. Let’s examine the 95% confidence interval of the slope of log.weight. vs. log.mpg.
 
-i. Create a bootstrapped confidence interval
+### i. Create a bootstrapped confidence interval
 
 ```{r}
 boot_intercept <- function(dataset) {
@@ -168,10 +186,15 @@ plot(
 )
 
 regression_coeffs <- replicate(500, boot_intercept(cars_log))
-abline(a = mean(regression_coeffs["(Intercept)",]), b = mean(regression_coeffs["weight",]), col = "red")
+
+abline(
+  a = mean(regression_coeffs["(Intercept)",]),
+  b = mean(regression_coeffs["weight",]), 
+  col = "red"
+)
 ```
 
-ii. Verify your results with a confidence interval using traditional statistics
+### ii. Verify your results with a confidence interval using traditional statistics
 
 ```{r}
 plot(
@@ -203,7 +226,9 @@ legend(
 )
 ```
 
+<p style="color:red;">
 We can see that the regression intercept from `lm(formula = mpg ~ weight, data = cars_log)` falls in the 95% CI.
+</p>
 
 # Question 2
 
@@ -225,27 +250,31 @@ regr_log <-
 ## a. Using regression and R2, compute the VIF of log.weight. using the approach shown in class
 
 ```{r}
-weight_regr <- lm(weight ~ + cylinders + displacement
-                 + horsepower + acceleration + year +
-                   factor(origin),  data=cars_log, na.action = na.exclude)
+weight_regr <- 
+  lm(weight ~ cylinders + displacement + horsepower 
+            + acceleration + year + factor(origin),  
+     data=cars_log, 
+     na.action = na.exclude)
 
 r2_weight <- summary(weight_regr)$r.squared
 vif <- 1 / (1-r2_weight)
 vif
 ```
 
+<p style="color:red;">
 The result above means that `weight` shares more than half of its variance with other independent variables.
+</p>
 
 ## b. Let’s try a procedure called Stepwise VIF Selection to remove highly collinear predictors.
 
-i. Use vif(regr_log) to compute VIF of the all the independent variables
+### i. Use vif(regr_log) to compute VIF of the all the independent variables
 
 ```{r}
 regr_log_vif <- vif(regr_log)
 regr_log_vif
 ```
 
-ii. Eliminate from your model the single independent variable with the largest VIF score that is also greater than 5
+### ii. Eliminate from your model the single independent variable with the largest VIF score that is also greater than 5
 
 ```{r}
 regr_log <- 
@@ -263,8 +292,7 @@ regr_log_vif <- vif(regr_log)
 regr_log_vif
 ```
 
-
-iii. Repeat steps (i) and (ii) until no more independent variables have VIF scores above 5
+### iii. Repeat steps (i) and (ii) until no more independent variables have VIF scores above 5
 
 ```{r}
 regr_log <- 
@@ -281,6 +309,10 @@ regr_log_vif <- vif(regr_log)
 regr_log_vif
 ```
 
+<p style="color:red;">
+In this iteration, we have to remove `cylinders` which has the highest VIF.
+</p>
+
 ```{r}
 regr_log <- 
   lm(
@@ -295,7 +327,11 @@ regr_log_vif <- vif(regr_log)
 regr_log_vif
 ```
 
-iv. Report the final regression model and its summary statistics
+<p style="color:red;">
+At the end, only `weight`, `acceleration`, `year`, and `factor(origin)`.
+</p>
+
+### iv. Report the final regression model and its summary statistics
 
 ```{r}
 regr_log
@@ -308,23 +344,66 @@ summary(regr_log)
 
 ## c. Using stepwise VIF selection, have we lost any variables that were previously significant?
 
+Without using step wise VIF selection, we have `horsepower`, `weight`, `acceleration`, `year`, `factor(origin)2`, and `factor(origin)3` as the significant independent variables.
+
+<p style="color:red;">
+However, we lose `horsepower`, `acceleration`, and `factor(origin)3` are lost using step wise VIF selection.
+</p>
+
 ## d. From only the formula for VIF, try deducing/deriving the following:
 
-i. If an independent variable has no correlation with other independent variables, what would its VIF score be?
+### i. If an independent variable has no correlation with other independent variables, what would its VIF score be?
 
-ii. Given a regression with only two independent variables (X1 and X2), how correlated would X1 and X2 have to be, to get VIF scores of 5 or higher? To get VIF scores of 10 or higher?
+If VIF is between 1 and 5, then the variables moderately correlated. If the VIF is greater than 5, then the variables are highly correlated.
+
+<p style="color:red;">
+If VIF score would be less than one 1, then the variables are less correlated.
+</p>
+
+### ii. Given a regression with only two independent variables (X1 and X2), how correlated would X1 and X2 have to be, to get VIF scores of 5 or higher? To get VIF scores of 10 or higher?
+
+<p style="color:red;">
+If the VIF score of 5 or higher, the correlation will be
+</p>
+
+```{r}
+vif <- 5
+correlation <- sqrt(1-(1/vif))
+correlation
+```
+
+<p style="color:red;">
+If the VIF score of 10 or higher, the correlation will be
+</p>
+
+```{r}
+vif <- 10
+correlation <- sqrt(1-(1/vif))
+correlation
+```
 
 # Question 3
 
 ```{r}
 origin_colors = c("blue", "darkgreen", "red")
-with(cars_log, plot(weight, mpg, pch=origin, col=origin_colors[origin]))
+
+with(
+  cars_log, 
+  plot(
+    weight,
+    mpg, 
+    pch=20, 
+    col=origin_colors[origin], 
+    main = "Distribution of Cars' origins"
+  )
+)
+
 legend(
   8.3,
   3.7,
   c("USA", "Europe", "Japan"),
   col = c("blue", "darkgreen", "red"),
-  pch = c(1,2,3)
+  pch = c(20,20,20),
 )
 ```
 
@@ -332,11 +411,43 @@ legend(
 
 ```{r}
 origin_colors = c("blue", "darkgreen", "red")
-with(cars_log, plot(weight, mpg, pch=origin, col=origin_colors[origin]))
+with(
+  cars_log, 
+  plot(
+    weight, 
+    mpg, 
+    pch=20, 
+    col=origin_colors[origin],
+    main = "Distribution of Cars' origins"
+  )
+)
 
-abline(lm(mpg~weight, data=cars_log[cars_log$origin == 1,]), col=origin_colors[1], lwd=2)
-abline(lm(mpg~weight, data=cars_log[cars_log$origin == 2,]), col=origin_colors[2], lwd=2)
-abline(lm(mpg~weight, data=cars_log[cars_log$origin == 3,]), col=origin_colors[3], lwd=2)
+abline(
+  lm(
+    mpg~weight,
+    data=cars_log[cars_log$origin == 1,]
+  ), 
+  col = origin_colors[1], 
+  lwd = 2
+)
+
+abline(
+  lm(
+    mpg~weight, 
+    data=cars_log[cars_log$origin == 2,]
+  ), 
+  col=origin_colors[2], 
+  lwd=2
+)
+
+abline(
+  lm(
+    mpg~weight, 
+    data=cars_log[cars_log$origin == 3,]
+  ), 
+  col=origin_colors[3], 
+  lwd=2
+)
 
 legend(
   8.3,
@@ -344,10 +455,13 @@ legend(
   c("USA", "Europe", "Japan"),
   col = c("blue", "darkgreen", "red"),
   lty = c(1,1,1),
-  lwd = c(2,2,2)
+  lwd = c(2,2,2),
+  pch = c(20,20,20)
 )
 ```
 
 ## b. Do cars from different origins appear to have different weight vs. mpg relationships?
 
+<p style="color:red;">
 It doesn't seem like it. Cars from those countries show the same trend where the ligher the cars, the further the distance the cars can cover per gallon.
+</p>
