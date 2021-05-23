@@ -1,8 +1,8 @@
 ---
 title: "BACS HW13"
-author: "Bijon Setyawan Raya"
+author: "109062710"
 date: "5/19/2021"
-output: html_document
+output: pdf_document
 ---
 
 ```{r, include=FALSE}
@@ -33,7 +33,8 @@ cars_log$origin <- factor(cars_log$origin, labels = origins)
 
 ### i. Split the data set into lightweight cars and heavyweight cars
 
-A new column will be made called `weight_type` with `1` as a heavy car and `2` as a lightcar.
+A new column will be made called `weight_type` with `1` as a heavy car and `2` as a light car.
+
 ```{r}
 cars_log <- cars_log %>% mutate(weight_type = ifelse(weight >= mean(weight), 1, 2))
 head(cars_log)
@@ -72,11 +73,13 @@ summary(heavy_cars_lm)
 
 ## c. What do you observe about light vs. heavy cars?
 
-Both light and heavy cars follow the same trend where as the acceleration increases, so as the distance that a car can cover.
+\textcolor{red}{Both light and heavy cars follow the same trend where as the acceleration increases, so as the distance that a car can cover.}
 
 # Question 2
 
-## a. 
+## a. Which is the moderating variable (not graded)?
+
+\textcolor{red}{A moderating variable is a variable that explains the behavior of an independent variable and a dependent variable. In this case, we can see that `weight` affects `acceleration`, and `acceleration` affects `mpg`. Clearly, `acceleration` is the moderating variable.}
 
 ## b. Use various regression models
 
@@ -135,22 +138,68 @@ summary(
 ### iv. Regression with an orthogonalized interaction term
 
 ```{r}
+weight_acc_inter_lm <- lm((weight * acceleration) ~ 
+                            weight + 
+                            acceleration +
+                            year + origin, 
+                        data = cars_log)
+cor(weight_acc_inter_lm$residuals, cars_log$weight)
+```
 
+
+```{r}
+cor(weight_acc_inter_lm$residuals, cars_log$acceleration)
+```
+
+We can see that both weight and acceleration are orthogonal to each other.
+
+Then we show the linear model summary 
+```{r}
+summary(
+    lm(
+        mpg ~ weight + acceleration + year + origin + weight_acc_inter_lm$residual,
+        data = cars_log
+    )
+)
 ```
 
 
 ## c. What is the correlation between the interaction term and the two variables that are multiplied together?
 
 ```{r}
+# without interaction
+no_interaction_weight <- cor((cars_log$weight * cars_log$acceleration), cars_log$weight)
+no_interaction_acceleration = cor((cars_log$weight * cars_log$acceleration), cars_log$acceleration)
+
+# mean-centered weight and acceleration
+mean_centered_weight <- cor(mean_center(cars_log$weight) * mean_center(cars_log$acceleration), mean_center(cars_log$weight))
+mean_centered_acceleration = cor(mean_center(cars_log$weight) * mean_center(cars_log$acceleration), mean_center(cars_log$acceleration))
+
+# orthogonalized weight and acceleration
+orthogonalized_weight <- cor(weight_acc_inter_lm$residuals, cars_log$weight)
+orthogonalized_acceleration = cor(weight_acc_inter_lm$residuals, cars_log$acceleration)
+
 correlation_matrix <- matrix(
     c(
-        cor(cars_log$weight * cars_log$acceleration, cars_log$weight),
-        cor(cars_log$weight * cars_log$acceleration, cars_log$acceleration),
-        cor(mean_center(cars_log$weight * cars_log$acceleration), mean_center(cars_log$weight))
-        cor(),
+        no_interaction_weight,
+        no_interaction_acceleration,
+        mean_centered_weight,
+        mean_centered_acceleration,
+        orthogonalized_weight,
+        orthogonalized_acceleration
     ),
-    ncol = 2,
-    byrow = TRUE
+    ncol = 2, byrow=TRUE
 )
+```
+
+```{r}
+correlation_matrix
+```
+
+
+```{r}
+rownames(correlation_matrix) <- c("without interaction", "mean-centered", "orthogonalized")
+colnames(correlation_matrix) <- c("weight", "acceleration")
+round(correlation_matrix, 5)
 ```
 
