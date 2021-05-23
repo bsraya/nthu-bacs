@@ -67,7 +67,7 @@ summary(light_cars_lm)
 
 ```{r}
 heavy_cars <- cars_log[cars_log$weight >= mean(cars_log$weight), ]
-heavy_cars_lm <- lm(mpg ~ weight + acceleration + year + origin, data = light_cars)
+heavy_cars_lm <- lm(mpg ~ weight + acceleration + year + origin, data = heavy_cars)
 summary(heavy_cars_lm)
 ```
 
