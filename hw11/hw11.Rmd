@@ -2,9 +2,7 @@
 title: "BACS HW11"
 author: '109062710'
 date: "5/5/2021"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r, include=FALSE}

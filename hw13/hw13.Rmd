@@ -1,0 +1,156 @@
+---
+title: "BACS HW13"
+author: "Bijon Setyawan Raya"
+date: "5/19/2021"
+output: html_document
+---
+
+```{r, include=FALSE}
+library(ISLR)
+library(dplyr)
+library(ggplot2)
+```
+
+Prepare the data set
+```{r}
+cars_log <- with(Auto, data.frame(log(mpg), log(cylinders), log(displacement),
+log(horsepower), log(weight), log(acceleration), year, origin, name))
+weight_mean <- mean(cars_log$weight)
+names(cars_log) <- names(Auto)
+head(cars_log)
+```
+
+Convert the numbers in `origin` column into names, namely 1 for USA, 2 for Europe, and 3 for Japan.
+
+```{r}
+origins <- c("USA", "Europe", "Japan")
+cars_log$origin <- factor(cars_log$origin, labels = origins)
+```
+
+# Question 1
+
+## Visualization
+
+### i. Split the data set into lightweight cars and heavyweight cars
+
+A new column will be made called `weight_type` with `1` as a heavy car and `2` as a lightcar.
+```{r}
+cars_log <- cars_log %>% mutate(weight_type = ifelse(weight >= mean(weight), 1, 2))
+head(cars_log)
+```
+
+### ii. Create a scatter plot of mpg vs acceleration
+
+```{r}
+ggplot(data = cars_log, aes(x = acceleration, y = mpg, col = factor(weight_type))) +
+    geom_point()
+```
+
+### iii. Make two seperate regression lines
+
+```{r}
+ggplot(data = cars_log, aes(x = acceleration, y = mpg, col = factor(weight_type))) +
+    geom_point() +
+    geom_smooth(method=lm)
+```
+
+
+## b. Report full summaries of light cars and heavy cars
+
+```{r}
+light_cars <- cars_log[cars_log$weight < mean(cars_log$weight), ]
+light_cars_lm <- lm(mpg ~ weight + acceleration + year + origin, data = light_cars)
+summary(light_cars_lm)
+```
+
+
+```{r}
+heavy_cars <- cars_log[cars_log$weight >= mean(cars_log$weight), ]
+heavy_cars_lm <- lm(mpg ~ weight + acceleration + year + origin, data = light_cars)
+summary(heavy_cars_lm)
+```
+
+## c. What do you observe about light vs. heavy cars?
+
+Both light and heavy cars follow the same trend where as the acceleration increases, so as the distance that a car can cover.
+
+# Question 2
+
+## a. 
+
+## b. Use various regression models
+
+### i. Regression without interaction terms
+
+```{r}
+summary(
+    lm(
+        mpg ~ weight + 
+            acceleration +
+            year + 
+            origin,
+        data = cars_log
+    )
+)
+```
+
+
+### ii. Regression with an interaction between weight and acceleration
+
+```{r}
+summary(
+    lm(
+        mpg ~ 
+            weight + 
+            acceleration +
+            year + 
+            origin +
+            weight * acceleration,
+        data = cars_log
+    )
+)
+```
+
+
+### iii. Regression with a mean-centered interaction term
+
+```{r}
+mean_center <- function(data) {
+    return(scale(data, center = TRUE, scale = FALSE))
+}
+
+summary(
+    lm(
+        mean_center(mpg) ~ 
+            mean_center(acceleration) +
+            mean_center(year)+ 
+            mean_center(Auto$origin) + # Auto$origin is in numeric
+            mean_center(mpg * acceleration),
+        data = cars_log
+    )
+)
+```
+
+
+### iv. Regression with an orthogonalized interaction term
+
+```{r}
+
+```
+
+
+## c. What is the correlation between the interaction term and the two variables that are multiplied together?
+
+```{r}
+correlation_matrix <- matrix(
+    c(
+        cor(cars_log$weight * cars_log$acceleration, cars_log$weight),
+        cor(cars_log$weight * cars_log$acceleration, cars_log$acceleration),
+        cor(mean_center(cars_log$weight * cars_log$acceleration), mean_center(cars_log$weight))
+        cor(),
+    ),
+    ncol = 2,
+    byrow = TRUE
+)
+```
+

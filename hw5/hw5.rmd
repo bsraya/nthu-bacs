@@ -16,37 +16,10 @@ library(readr)
 library(ggpubr)
 ```
 
-<<<<<<< Updated upstream
-=======
-Helper functions
-```{r}
-mean <- function(sample) {
-  return(mean(sample))
-}
-
-ci <- function(sample, length, z_value) {
-  mean <- mean(sample)
-  sderr <- sd(sample) / sqrt(length)
-  return(list("low" = mean - z_value * sderr, "high" = mean + z_value * sderr))
-}
-
-density <- function(data) {
-  return (
-    ggplot(mapping = aes(data$Time)) +
-      geom_density(
-        fill="#69b3a2", 
-        color="#e9ecef"
-      ) +
-      ggtitle("ILEC Repair Time") +
-      coord_cartesian(xlim = c(0, max(data$Time))) 
-  )
-}
-```
-
->>>>>>> Stashed changes
 # Question 1
 
 ```{r, include = FALSE}
+hypothesized_mean <- 7.6
 verizon <- read_csv("verizon.csv")
 ilec <- as.data.frame(verizon[verizon$Group == "ILEC", ])
 clec <- as.data.frame(verizon[verizon$Group == "CLEC", ])
@@ -54,7 +27,6 @@ clec <- as.data.frame(verizon[verizon$Group == "CLEC", ])
 
 ## a. Visualize Verizon’s response times for ILEC vs. CLEC customers
 ```{r}
-<<<<<<< Updated upstream
 ilec <- as.data.frame(verizon[verizon$Group == "ILEC", ])$Time
 ilec_mean <- mean(ilec)
 
@@ -71,13 +43,6 @@ legend(
   lty = c("solid", "solid"), 
   col = c("black", "red")
 )
-=======
-density(ilec)
-```
-
-```{r}
-density(clec)
->>>>>>> Stashed changes
 ```
 
 ## b. Use the appropriate form of the t.test() function to test the difference between the mean of ILEC sample response times versus the mean of CLEC sample response times. From the output of t.test():
@@ -103,7 +68,6 @@ Since the p-value is greater than equal `0.05`, then we say that we accept the n
 ### i. Plot a distribution of the bootstrapped null t-values and alternative t-values, adding vertical lines to show the 5% rejection zone of the null distribution (use the same one-vs-two tail logic as 1b).
 
 ```{r}
-<<<<<<< Updated upstream
 t_null_alt <- function(sample0, hyp_mean) {
   resample <- sample(sample0, length(sample0), replace = TRUE)
   resample_se <- sd(resample) / sqrt(length(resample))
@@ -140,9 +104,6 @@ legend(
   lty = c("dashed", "solid", "dotted", "solid"), 
   lwd = c(2,2,1,1), 
   col = c("black", "cornflowerblue", "black", "red"))
-=======
-ilec_ci <- ci(ilec$time, nrow(ilec), 2.58)
->>>>>>> Stashed changes
 ```
 
 ### ii. Based on these bootstrapped results, should we reject the null hypothesis?

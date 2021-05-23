@@ -411,6 +411,7 @@ legend(
 
 ```{r}
 origin_colors = c("blue", "darkgreen", "red")
+
 with(
   cars_log, 
   plot(
@@ -422,32 +423,18 @@ with(
   )
 )
 
-abline(
-  lm(
-    mpg~weight,
-    data=cars_log[cars_log$origin == 1,]
-  ), 
-  col = origin_colors[1], 
-  lwd = 2
-)
+origins <- c(1,2,3)
 
-abline(
-  lm(
-    mpg~weight, 
-    data=cars_log[cars_log$origin == 2,]
-  ), 
-  col=origin_colors[2], 
-  lwd=2
-)
-
-abline(
-  lm(
-    mpg~weight, 
-    data=cars_log[cars_log$origin == 3,]
-  ), 
-  col=origin_colors[3], 
-  lwd=2
-)
+for (origin in origins) {
+  abline(
+    lm(
+      mpg~weight,
+      data=cars_log[cars_log$origin == origin,]
+    ), 
+    col = origin_colors[origin], 
+    lwd = 2
+  )
+}
 
 legend(
   8.3,
