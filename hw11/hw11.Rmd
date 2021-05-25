@@ -157,7 +157,8 @@ variables <-
          "cylinders", 
          "displacement", 
          "horsepower", 
-         "weight")
+         "weight"
+        )
   ]
 variables %>% 
   correlate() %>% 

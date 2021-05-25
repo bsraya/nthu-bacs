@@ -1,0 +1,269 @@
+---
+title: "BACS HW14"
+author: "109062710"
+date: "5/24/2021"
+output: html_document
+---
+
+```{r, include=FALSE}
+library(ISLR)
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(corrr)
+```
+
+Prepare the data set
+```{r}
+cars_log <- with(Auto, data.frame(log(mpg), log(cylinders), log(displacement),
+log(horsepower), log(weight), log(acceleration), year, origin, name))
+weight_mean <- mean(cars_log$weight)
+names(cars_log) <- names(Auto)
+head(cars_log)
+```
+
+Convert the numbers in `origin` column into names, namely 1 for USA, 2 for Europe, and 3 for Japan.
+
+```{r}
+origins <- c("USA", "Europe", "Japan")
+cars_log$origin <- factor(cars_log$origin, labels = origins)
+```
+
+# Question 1
+
+#### a. Compute direct effects
+
+i. Regress `weight` over `cylinders`.
+```{r}
+weight_cyl_regr <- lm(weight ~ cylinders, data = cars_log)
+summary(weight_cyl_regr)
+```
+
+In this case, just by looking at `Pr(>|t|)` column, number of `cylinders` has a significant effect on `weight`.
+
+ii. Regress `mpg` over `weight` + control variables.
+
+```{r}
+mpg_all_regr <- lm(mpg ~ weight + acceleration + year + origin, data = cars_log)
+summary(mpg_all_regr)
+```
+
+In this case, only `weight` and `year` have significant direct effect on `mpg`.
+
+#### b. What is the indirect effect of cylinders on mpg?
+
+```{r}
+mpg_all_regr$coefficients
+```
+
+```{r}
+weight_cyl_regr$coefficients
+```
+
+```{r}
+weight_cyl_regr$coefficients[2] * mpg_all_regr$coefficients[2]
+```
+
+#### c. Bootstrap CI of the indirect effect of cylinders on mpg
+
+```{r}
+set.seed(345)
+boot_indirect <- function(model1, model2, data) {
+    random_index <- sample(1:nrow(data), replace = TRUE)
+    random_sample <- data[random_index,]
+    lm1 <- lm(model1, data = random_sample)
+    lm2 <- lm(model2, data = random_sample)
+    return(lm1$coefficients[2] * lm2$coefficients[2])
+}
+
+bootstrap_ci <- replicate(
+    2000, 
+    boot_indirect(weight ~ 
+                      cylinders, 
+                  mpg ~ 
+                      weight + 
+                      acceleration + 
+                      year + 
+                      origin, 
+                  cars_log)
+    )
+plot(
+    density(bootstrap_ci),
+    main =
+        '95% CI Bootstrap Distribution of Indirect Effects',
+    lwd = 2,
+)
+
+abline(
+    v = quantile(bootstrap_ci, p = c(0.025, 0.975)),
+    col = "red",
+    lty = "solid",
+    lwd = 2
+)
+
+abline(
+    v = weight_cyl_regr$coefficients[2] * mpg_all_regr$coefficients[2],
+    col = "blue",
+    lty = "solid",
+    lwd = 2
+)
+legend(
+    -0.86,
+    12,
+    c("Distribution", "95% cutoff points", "cylinders~mpg"),
+    col = c("black", "red", "blue"),
+    lwd = c(2,2,2),
+    lty = c(1,1,1)
+)
+```
+
+We can see that the indirect effect we got from `weight_cyl_regr$coefficients[2] * mpg_all_regr$coefficients[2]` falls in within the 95% CI.
+
+# Question 2
+
+#### a. Analyze the principal components of the four colinear variables
+
+i. Make a new data.frame of the four log-transformed variables with high multi-collinearity
+
+```{r}
+multicollinear_variables <- cars_log[, c("cylinders", "displacement", "horsepower", "weight")]
+multicollinear_variables <- na.omit(multicollinear_variables)
+head(multicollinear_variables)
+```
+
+```{r}
+cor(multicollinear_variables)
+```
+
+```{r}
+multicollinear_variables %>% 
+  correlate() %>% 
+  network_plot(min_cor = 0.7, colors = c("red", "green"), legend = TRUE)
+```
+
+From the graph above, we know these four variables are multi-collinear
+
+ii. How much variance of the four variables is explained by their first principal component?
+
+```{r}
+prcomp <- prcomp(multicollinear_variables, scale. = TRUE)
+
+summary(prcomp)
+```
+
+```{r}
+var_explained <- (prcomp$sdev)^2/sum((prcomp$sdev)^2)
+
+var_explained_df <- data.frame(
+    PC= paste0("PC",1:4),
+    var_explained=var_explained)
+
+var_explained_df
+
+var_explained_df %>%
+  ggplot(aes(x=PC,y=var_explained, group=1))+
+  geom_point(size=4)+
+  geom_line()+
+  labs(title="Scree plot: PCA on scaled data")
+```
+
+Clearly, the first principal component explains the most out of all variables present in multicollinear_variables data set.
+
+iii. What would you call the information captured by this component?
+
+#### b. Let’s revisit our regression analysis on cars_log
+
+i. Store the PC1 scores in the new column of `cars_log`
+
+```{r}
+new_cars_log <- cars_log[, c(1:7)]
+new_cars_log <- na.omit(new_cars_log)
+
+pc1 <- prcomp$x
+
+new_cars_log$PC1 <- pc1[, 1]
+head(new_cars_log)
+```
+
+ii. Regress mpg over the the column with `PC1`, `acceleration`, `year` and `origin`
+
+```{r}
+summary(
+    lm(
+        mpg ~
+            PC1 + 
+            acceleration +
+            year +
+            Auto$origin,
+        data = new_cars_log
+    )   
+)
+```
+
+iii. Try running the regression again over the same independent variables, but this time with everything standardized. How important is this new column relative to other columns?
+
+```{r}
+standardized_cars_log <- as.data.frame(scale(new_cars_log))
+
+summary(
+    lm(
+        mpg ~
+            PC1 + 
+            acceleration +
+            year +
+            Auto$origin,
+        data = standardized_cars_log
+    )   
+)
+```
+
+Whether the data is standardized or not, it doesn't seem that `PC1` shows any importance over any over variables. However, intercept becomes less significant
+
+# Question 3
+
+Import data set
+```{r}
+security_questions <- 
+    read_csv("D:/git-repos/bacs-hw/hw14/security_questions.csv")
+head(security_questions)
+```
+
+
+#### a. How much variance did each extracted factor explain?
+
+```{r}
+sec_ques_prcomp <- prcomp(security_questions, scale. = TRUE)
+```
+
+```{r}
+var_explained <- (sec_ques_prcomp$sdev)^2/sum((sec_ques_prcomp$sdev)^2)
+
+var_explained_df <- data.frame(
+    PC= paste0("PC", 1:18),
+    var_explained=var_explained)
+
+var_explained_df
+
+var_explained_df %>%
+  ggplot(aes(x=PC,y=var_explained, group=1))+
+  geom_point(size=4)+
+  geom_line()+
+  labs(title="Scree plot: Security Questions Principal Components")
+```
+
+
+#### b. How many dimensions would you retain, according to the criteria we discussed?
+
+```{r}
+summary(sec_ques_prcomp)
+```
+
+I would take 2 components which are `PC1` and `PC2` since two of them capture almost 60 percent variance of the data set.
+
+#### c.Can you interpret what any of the principal components mean? 
+
+Geometrically speaking, principal components represent the directions of the data that explain a maximal amount of variance, that is to say, the lines that capture most information of the data.
+
+The relationship between variance and information here, is that, the larger the variance carried by a line, the larger the dispersion of the data points along it, and the larger the dispersion along a line, the more the information it has.
+
+Simply said, just think of principal components as new axes that provide the best angle to see and evaluate the data, so that the differences between the observations are better visible.
