@@ -1,0 +1,159 @@
+---
+title: "BACS HW15"
+author: '109062710'
+date: "6/2/2021"
+output: pdf_document
+---
+
+```{r, include=FALSE}
+library(psych)
+```
+
+
+# Question 1
+
+## a. Show a scree plot of data
+```{r}
+df <- read.csv("/home/johnbjohn/Documents/git-repos/bacs-hw/hw15/security_questions.csv")
+pca <- prcomp(df, scale. = TRUE)
+```
+
+Create a noise simulation function
+```{r}
+noise_simulation <- function(x, y) {
+  random_normal_dist <- replicate(y, rnorm(x))
+  noise <- data.frame(random_normal_dist)
+  eigenvalues <- eigen(cor(noise))$values
+  return(eigenvalues)
+}
+```
+
+```{r}
+set.seed(2000)
+x <- dim(df)[1]
+y <- dim(df)[2]
+simulate_noise <- replicate(1, noise_simulation(x, y))
+evaluated_mean <- apply(simulate_noise, 1, mean)
+
+screeplot(
+  pca, 
+  type = "line", 
+  col = "black",
+  main = "Security Question PCA Scree Plot"
+)
+
+lines(evaluated_mean, type = "b", col = "red")
+
+legend(
+  6,
+  8,
+  c("True Eigenvalues", "Perturbed Eigenvalues"),
+  lty=c(1,1),
+  col = c("black", "red")
+)
+```
+
+## b. How many dimensions would you retain if we used Parallel Analysis?
+
+
+# Question 2
+
+```{r}
+pca_result <- principal(df, nfactors = 3, rotate = "none", scores = TRUE)
+pca_result
+```
+
+## a. To which principal components does each question seems to best belong?
+
+\textcolor{red}{Let's set a threshold of 0.7, we then have} `Q1, Q3, Q8, Q9, Q11, Q13, Q14, Q16, Q18` \textcolor{red}{that belong to} `PC1` \textcolor{red}{and the other questions seem to belong to either} `PC2` or `PC3`.
+
+## b. How much variance captured by `PC1`, `PC2`, and `PC3`.
+
+```{r}
+summary(pca)$importance[2, c(1:3)]
+```
+
+\textcolor{red}{All we need is the first three columns of the second row, which is} `Proprotion of Variance`. 
+\textcolor{red}{Thus, the variance explained by the} `PC1` \textcolor{red}{is 51\%,} `PC2` \textcolor{red}{is 8\%, and} `PC3` \textcolor{red}{is 6\%.}
+\textcolor{red}{In total,} `PC1`, `PC2`, and `PC3` \textcolor{red}{explain roughly 66\% of total variance.}
+
+## c. Which questions are less than adequately explained by the first 3 principal components?
+
+\textcolor{red}{It's} `Q2` \textcolor{red}{since it has `h2`} \textcolor{red}{of 0.4605433.}
+
+## d. How many measurement items share similar loadings between 2 or more components?
+
+```{r}
+evaluate_loadings <- function(df, range) {
+  return(
+    (
+      abs(df[range, 1] - df[range, 2])<0.1 | 
+      abs(df[range, 2] - df[range, 3])<0.1 | 
+      abs(df[range, 1] - df[range, 3])<0.1
+    ) &
+    (
+      df[range, 1] < 0.7 & 
+      df[range, 2] < 0.7 & 
+      df[range, 3] < 0.7
+    )
+  )
+}
+
+evaluate_loadings(pca_result$loading, 1:18)
+```
+
+\textcolor{red}{Only} `Q4`, `Q12`, and `Q17` \textcolor{red}{share similar loadings between 2 or more components.}
+
+# Question 3
+
+## a. Individually, does each `RC` explain the same amount of variance?
+
+```{r}
+rc <- principal(df, nfactors = 3, rotate = "varimax", scores = TRUE)$loadings
+rc
+```
+
+\textcolor{red}{Looking at the proportion variance, we can see} `RC1` \textcolor{red}{is 30\% and} `PC1` \textcolor{red}{is 51\%.}
+`RC2` \textcolor{red}{is 19\% and} `PC3` \textcolor{red}{is 8\%. While} `RC3` \textcolor{red}{is 16\% and} `PC3` \textcolor{red}{is 6\%.}
+\textcolor{red}{Clearly, they are different.}
+
+## b. Together, do these rotated components explain the same amount of variance like the principal components?
+
+\textcolor{red}{Yes, both the rotated components and the principal components have the same total amount of variances explained.}
+
+## c. do Q4, Q12, and Q17 have more clearly differentiated loadings among rotated components?
+
+```{r}
+rc[c(4,12,17), 1:3]
+```
+
+\textcolor{red}{Since these rotate components have loading value above 0.7, clearly they are more clearly differentiated.}
+
+## d. Can you interpret the meaning of the three rotated components?
+
+```{r}
+rc[rc[, 1] > 0.7, 1]
+```
+
+`RC1` \textcolor{red}{means data protection.}
+
+```{r}
+rc[rc[, 2] > 0.7, 2]
+```
+
+`RC2` \textcolor{red}{means transaction processing.}
+
+```{r}
+rc[rc[, 3] > 0.7, 3]
+```
+
+`RC3` \textcolor{red}{means providing evidence to protect against its denial.}
+
+## e. If we reduced the number of rotated components, does the meaning of our rotated components change?
+
+```{r}
+reduced_rc <- principal(df, nfactors = 2, rotate = "varimax", scores = TRUE)
+reduced_rc$loadings[,1][reduced_rc$loadings[,1] > 0.7]
+```
+
+\textcolor{red}{Yes. When we decreased} `nfactors` \textcolor{red}{by 1, the number of questions belong to `RC1` would increase.}
