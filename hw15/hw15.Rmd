@@ -47,7 +47,7 @@ lines(evaluated_mean, type = "b", col = "red")
 legend(
   6,
   8,
-  c("True Eigenvalues", "Perturbed Eigenvalues"),
+  c("Principal Component Analysis", "Parallel Analysis"),
   lty=c(1,1),
   col = c("black", "red")
 )
@@ -55,6 +55,7 @@ legend(
 
 ## b. How many dimensions would you retain if we used Parallel Analysis?
 
+I would keep 3 dimensions since the red line intersects the black line at the third column.
 
 # Question 2
 
