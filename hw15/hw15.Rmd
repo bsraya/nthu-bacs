@@ -105,6 +105,10 @@ evaluate_loadings(pca_result$loading, 1:18)
 
 \textcolor{red}{Only} `Q4`, `Q12`, and `Q17` \textcolor{red}{share similar loadings between 2 or more components.}
 
+## e. Can you distinguish a ‘meaning’ behind the first principal component from the items that load best upon it? (see the wording of the questions of those items)
+
+\textcolor{red}{The meaning of} `PC1` \textcolor{red}{might not be easy to interpret when we compare it with the wording of the questions.}
+
 # Question 3
 
 ## a. Individually, does each `RC` explain the same amount of variance?
@@ -157,4 +161,4 @@ reduced_rc <- principal(df, nfactors = 2, rotate = "varimax", scores = TRUE)
 reduced_rc$loadings[,1][reduced_rc$loadings[,1] > 0.7]
 ```
 
-\textcolor{red}{Yes. When we decreased} `nfactors` \textcolor{red}{by 1, the number of questions belong to `RC1` would increase.}
+\textcolor{red}{Yes. When we decreased} `nfactors` \textcolor{red}{by 1, the number of questions belong to `RC1` would increase. However, the meaning stays the same.}
