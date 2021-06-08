@@ -1,0 +1,153 @@
+---
+title: "BACS HW16"
+author: '109062710'
+date: "6/8/2021"
+output: html_document
+---
+
+```{r, include = FALSE}
+library(seminr)
+```
+
+prepare data set
+
+```{r}
+sec = read.csv("/home/johnbjohn/Documents/git-repos/bacs-hw/hw16/security_data_sem.csv")
+```
+
+# Question 1
+
+## a. Create a PLS path model using SEMinR
+
+### i. Create a measurement model
+
+```{r}
+sec_mm <- constructs(
+  composite('TRUST', multi_items('TRST', 1:4)),
+  composite('SEC', multi_items('PSEC', 1:4)),
+  composite('REP', multi_items('PREP', 1:4)),
+  composite('INV', multi_items('PINV', 1:3)),
+  composite('POL', multi_items('PPSS', 1:3)),
+  composite('FAML', single_item('FAML1')),
+  interaction_term(iv='REP', moderator='POL', method=orthogonal)
+)
+```
+
+### ii. Create a structural model
+
+```{r}
+sec_sm <- relationships(
+  paths(from = c("REP","INV","POL","FAML","REP*POL"), to = "SEC"),
+  paths(from = "SEC", to = "TRUST")
+)
+```
+
+```{r}
+pls <- estimate_pls(
+  data = sec,
+  measurement_model = sec_mm,
+  structural_model = sec_sm
+)
+
+pls_report <- summary(pls)
+
+pls_report
+```
+
+## b. Show the results in table format
+
+### i. plot a figure of the estimated model
+
+```{r}
+plot(pls, title="PLS plot")
+```
+
+### ii. Weights and loadings of composites
+
+Weight of composites
+
+```{r}
+pls_report$weights
+```
+
+Loading of composites
+
+```{r}
+pls_report$loadings
+```
+
+### iii. Regression coefficients of paths between factors
+
+```{r}
+pls_report$paths
+```
+
+### iv. Bootstrapped path coefficients: t-values, 95% CI
+
+```{r}
+boot_pls <- bootstrap_model(pls, nboot=1000)
+```
+
+```{r}
+summary(boot_pls)
+```
+
+
+# Question 2
+
+## a. Create a common factor model using SEMinR
+
+### i. Respecify all the constructs using reflective() function
+
+```{r}
+cfm_mm <- constructs(
+  reflective('TRUST', multi_items('TRST', 1:4)),
+  reflective('SEC', multi_items('PSEC', 1:4)),
+  reflective('REP', multi_items('PREP', 1:4)),
+  reflective('INV', multi_items('PINV', 1:3)),
+  reflective('POL', multi_items('PPSS', 1:3)),
+  reflective('FAML', single_item('FAML1')),
+  interaction_term(iv='REP', moderator='POL', method=orthogonal)
+)
+```
+
+### ii. Use the same structural model as before
+
+```{r}
+cfm_sm <- relationships(
+  paths(from = c("REP","INV","POL","FAML","REP*POL"), to = "SEC"),
+  paths(from = "SEC", to = "TRUST")
+)
+```
+
+## b. Show the result
+
+```{r}
+cfm_pls <- estimate_cbsem(
+  data = sec,
+  measurement_model = cfm_mm,
+  structural_model = cfm_sm
+)
+
+cfm_pls_report <- summary(cfm_pls)
+cfm_pls_report
+```
+
+
+### i. Plot the model
+
+```{r}
+plot(cfm_pls, title="Common-Factor Models using CB-SEM")
+```
+
+### ii. Loadings of composites
+
+```{r}
+cfm_pls_report$loadings
+```
+
+### iii. Regression coefficients and P-values
+
+```{r}
+cfm_pls_report$paths
+```
